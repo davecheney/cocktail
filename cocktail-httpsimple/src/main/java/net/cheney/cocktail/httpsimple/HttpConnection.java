@@ -46,8 +46,7 @@ public class HttpConnection {
 	private final Application application;
 	private ChannelReader channelReader;
 	private ChannelWriter channelWriter;
-	private Request request;
-	private ByteBuffer body;
+	private RequestParser.Request request;
 
 	public HttpConnection(SocketChannel sc, Selector selector,
 			Application application) throws IOException {
@@ -60,7 +59,6 @@ public class HttpConnection {
 
 	private void reset() throws IOException {
 		this.request = null;
-		this.body = null;
 		this.requestParser = new RequestParser();
 	}
 
@@ -124,7 +122,7 @@ public class HttpConnection {
 		} else {
 			long contentLength = request.contentLength();
 			if(contentLength > 0 ) {
-				body = ByteBuffer.allocate((int) contentLength);
+				request.setBody(ByteBuffer.allocate((int) contentLength));
 				return readBody();
 			} else {
 				return handleRequest();
@@ -141,9 +139,9 @@ public class HttpConnection {
 	}
 
 	private ReadState readBody() throws IOException {
-		LOG.debug("readBody: "+body);
-		body.put(channelReader.read());
-		return body.hasRemaining() ? enableReadInterest(ReadState.READ_BODY) : handleRequest();
+		LOG.debug("readBody: "+request.body());
+		request.body().put(channelReader.read());
+		return request.body().hasRemaining() ? enableReadInterest(ReadState.READ_BODY) : handleRequest();
 	}
 
 	private ReadState enableReadInterest(ReadState s) {
@@ -152,7 +150,7 @@ public class HttpConnection {
 	}
 
 	private ReadState handleRequest() throws IOException {
-		Response response = application.call(createEnvironment(request));
+		Response response = application.call(request);
 		sendResponse(response, closeRequested(request, response));
 		reset();
 		enableReadInterest();
@@ -235,10 +233,6 @@ public class HttpConnection {
 
 	private Multimap<Header, String> emptyMultiMap() {
 		return ArrayListMultimap.create();
-	}
-
-	private Environment createEnvironment(final Request request) {
-		return Environment.fromRequest(request, body);
 	}
 
 	protected <T> T panic() {

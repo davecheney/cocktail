@@ -1,7 +1,5 @@
 package net.cheney.cocktail.application;
 
-import static net.cheney.cocktail.application.Path.emptyPath;
-
 import java.nio.ByteBuffer;
 
 import javax.annotation.Nonnull;
@@ -9,69 +7,8 @@ import javax.annotation.Nonnull;
 import net.cheney.cocktail.message.Header;
 import net.cheney.cocktail.message.Request;
 import net.cheney.cocktail.message.Version;
-import net.cheney.cocktail.message.Request.Method;
 
-public abstract class Environment {
-
-	public abstract @Nonnull Request.Method method();
-
-	public abstract @Nonnull Version version();
-
-	public abstract @Nonnull Header.Accessor header(Header header);
-//
-//	public abstract Multimap<Header<?>, String> headers();
-//
-	public abstract @Nonnull Path path();
-	
-	public abstract @Nonnull Path contextPath();
-//	
-//	public Parameters params() {
-//		return params;
-//	}
-//	
-//	public <K> K param(Parameter<K> key) {
-//		return params.get(key);
-//	}
-
-	public static Environment fromRequest(final Request req, final ByteBuffer body) {
-		return new Environment() {
-			
-			@Override
-			public Version version() {
-				return req.version();
-			}
-			
-			@Override
-			public Path path() {
-				return Path.fromURI(req.uri());
-			}
-			
-			@Override
-			public Method method() {
-				return req.method();
-			}
-			
-			@Override
-			public Path contextPath() {
-				return emptyPath();
-			}
-
-			@Override
-			public Header.Accessor header(Header header) {
-				return req.header(header);
-			}
-			
-			@Override
-			public ByteBuffer body() {
-				return body.asReadOnlyBuffer();
-			}
-			
-			@Override
-			public boolean hasBody() {
-				return body != null;
-			}
-		};
-	}
+public interface Environment {
 
 	public enum Depth { 
 		
@@ -92,7 +29,7 @@ public abstract class Environment {
 				return "infinity";
 			}
 		};
-
+		
 		public Depth decreaseDepth() {
 			return (this == INFINITY ? INFINITY : ZERO);
 		}
@@ -110,8 +47,28 @@ public abstract class Environment {
 		}
 		
 	}
-	
-	public abstract @Nonnull ByteBuffer body();
+	@Nonnull Request.Method method();
 
-	public abstract boolean hasBody();
+	@Nonnull Version version();
+
+	@Nonnull Header.Accessor header(Header header);
+//
+//	public abstract Multimap<Header<?>, String> headers();
+//
+	@Nonnull Path path();
+	
+	@Nonnull Path contextPath();
+//	
+//	public Parameters params() {
+//		return params;
+//	}
+//	
+//	public <K> K param(Parameter<K> key) {
+//		return params.get(key);
+//	}
+
+	
+	@Nonnull ByteBuffer body();
+
+	boolean hasBody();
 }

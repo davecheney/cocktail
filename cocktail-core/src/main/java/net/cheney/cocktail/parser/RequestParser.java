@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
 
+import net.cheney.cocktail.application.Environment;
+import net.cheney.cocktail.application.Path;
 import net.cheney.cocktail.message.Header;
 import net.cheney.cocktail.message.Header.Accessor;
 import net.cheney.cocktail.message.Request;
@@ -12,13 +14,14 @@ import net.cheney.cocktail.message.Version;
 
 public class RequestParser extends HttpParser<Request>{
 
+
 	private final RequestLineParser requestLineParser = new RequestLineParser();
 	private final HeaderParser headerParser = new HeaderParser();
 	
 	private RequestLine requestLine;
 	private Headers headers;
 
-	public Request parse(ByteBuffer buffer) {
+	public RequestParser.Request parse(ByteBuffer buffer) {
 		while(buffer.hasRemaining()) {
 			if(requestLine == null) {
 				requestLine = requestLineParser.parse(buffer);
@@ -37,10 +40,28 @@ public class RequestParser extends HttpParser<Request>{
 		return null;
 	}
 
-	private Request createRequest(final RequestLine rl, final Headers h){
-		return new Request() {
+	private RequestParser.Request createRequest(final RequestLine rl, final Headers h){
+		return new RequestParser.Request(rl, h);
+	}
 
-			@Override
+	@Override
+	public void reset() {
+		requestLineParser.reset();
+		headerParser.reset();
+	}
+	
+	public class Request extends net.cheney.cocktail.message.Request implements Environment {
+
+		private final RequestLine rl;
+		private final Headers h;
+		private ByteBuffer body = null;
+
+		public Request(RequestLine rl, Headers h) {
+			this.rl = rl;
+			this.h = h;
+		}
+
+		@Override
 			public Method method() {
 				return rl.method();
 			}
@@ -72,17 +93,26 @@ public class RequestParser extends HttpParser<Request>{
 			
 			@Override
 			public ByteBuffer body() {
-				// TODO Auto-generated method stub
-				return null;
+				return body;
 			}
 			
-		};
-	}
+			public void setBody(ByteBuffer body) {
+				this.body = body;
+			}
 
-	@Override
-	public void reset() {
-		requestLineParser.reset();
-		headerParser.reset();
+			@Override
+			public Path path() {
+				return Path.fromURI(uri());
+			}
+
+			@Override
+			public Path contextPath() {
+				return Path.emptyPath();
+			}
+
+			@Override
+			public boolean hasBody() {
+				return body != null;
+			}
 	}
-	
 }
