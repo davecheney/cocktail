@@ -13,17 +13,17 @@ import net.cheney.cocktail.message.Request.Method;
 
 public abstract class Environment {
 
-	public abstract Request.Method method();
+	public abstract @Nonnull Request.Method method();
 
-	public abstract Version version();
+	public abstract @Nonnull Version version();
 
-	public abstract Header.Accessor header(Header header);
+	public abstract @Nonnull Header.Accessor header(Header header);
 //
 //	public abstract Multimap<Header<?>, String> headers();
 //
-	public abstract Path path();
+	public abstract @Nonnull Path path();
 	
-	public abstract Path contextPath();
+	public abstract @Nonnull Path contextPath();
 //	
 //	public Parameters params() {
 //		return params;
@@ -111,11 +111,7 @@ public abstract class Environment {
 		
 	}
 	
-	public Depth depth() {
-		return Depth.parse(header(Header.DEPTH).getOnlyElementWithDefault(""), Depth.INFINITY);
-	}
-
-	public abstract ByteBuffer body();
+	public abstract @Nonnull ByteBuffer body();
 
 	public abstract boolean hasBody();
 }

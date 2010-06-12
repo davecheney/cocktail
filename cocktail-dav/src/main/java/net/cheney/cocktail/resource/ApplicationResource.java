@@ -20,7 +20,6 @@ import java.util.List;
 import net.cheney.cocktail.application.Application;
 import net.cheney.cocktail.application.Environment;
 import net.cheney.cocktail.application.Environment.Depth;
-import net.cheney.cocktail.dav.Responses;
 import net.cheney.cocktail.message.Header;
 import net.cheney.cocktail.message.Request.Method;
 import net.cheney.cocktail.message.Response;
@@ -46,6 +45,9 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 		case MKCOL:
 			return mkcol(env);
 			
+		case COPY:
+			return copy(env);
+			
 		case MOVE:
 			return move(env);
 			
@@ -61,6 +63,10 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 		default:
 			return serverErrorNotImplemented().call(env);
 		}
+	}
+
+	private Response copy(Environment env) {
+		return clientErrorNotFound().call(env);
 	}
 
 	private Response get(Environment env) {
@@ -182,7 +188,8 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 	}
 
 	private Application propfind(Environment env) {
-		return successMultiStatus(multistatus(propfind(ALL_PROPS, this, env.depth())));
+		Depth depth = Depth.parse(env.header(Header.DEPTH).getOnlyElementWithDefault(""), Depth.INFINITY);
+		return successMultiStatus(multistatus(propfind(ALL_PROPS, this, depth)));
 	}
 
 	private List<Elements.RESPONSE> propfind(List<QName> searchProps, Resource resource, Depth depth) {
@@ -204,7 +211,7 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 			builder.header(Header.ALLOW).add(method.name());
 		}
 		
-		builder.header(Header.DAV).add("1");
+		builder.header(Header.DAV).add("1").add("2");
 		
 		return builder.build();
 	}
