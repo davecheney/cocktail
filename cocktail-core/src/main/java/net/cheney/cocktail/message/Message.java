@@ -1,29 +1,12 @@
 package net.cheney.cocktail.message;
 
+import java.io.IOException;
+
 import javax.annotation.Nonnull;
 
 public abstract class Message {
-
-	public enum Version {
-
-		HTTP_0_9("HTTP/0.9"), HTTP_1_0("HTTP/1.0"), HTTP_1_1("HTTP/1.1");
-
-		private final String value;
-
-		private Version(@Nonnull String value) {
-			this.value = value;
-		}
-
-		public static final Version parse(@Nonnull CharSequence version) {
-			return valueOf(version.toString().replace('/', '_').replace('.', '_'));
-		}
-
-		@Override
-		public final String toString() {
-			return value;
-		}
-
-	}
+	
+	public abstract long contentLength() throws IOException;
 	
 	abstract static class StartLine {
 
@@ -44,4 +27,25 @@ public abstract class Message {
 		public abstract boolean equals(Object obj);
 
 	}
+
+	public boolean closeRequested() {
+		Header.Accessor connection = header(Header.CONNECTION);
+		return "close".equalsIgnoreCase(connection.getOnlyElementWithDefault(""));
+	}
+	
+	public abstract Version version();
+	
+	public abstract Iterable<Header> headers();
+	
+	public abstract Header.Accessor header(Header header);
+	
+	public enum TransferEncoding {
+		NONE,
+		IDENTITY
+	}
+	
+	public TransferEncoding transferCoding() {
+		return TransferEncoding.NONE;
+	}
+		
 }

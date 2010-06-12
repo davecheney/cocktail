@@ -1,8 +1,15 @@
 package net.cheney.cocktail.application;
 
+import static net.cheney.cocktail.application.Path.emptyPath;
+
+import java.nio.ByteBuffer;
+
+import javax.annotation.Nonnull;
+
 import net.cheney.cocktail.message.Header;
-import net.cheney.cocktail.message.Message.Version;
 import net.cheney.cocktail.message.Request;
+import net.cheney.cocktail.message.Version;
+import net.cheney.cocktail.message.Request.Method;
 
 public abstract class Environment {
 
@@ -10,17 +17,96 @@ public abstract class Environment {
 
 	public abstract Version version();
 
-	public abstract HeaderAccessor<Request> header(Header<?> header);
-
-	public abstract Multimap<Header<?>, String> headers();
-
-	public abstract Path pathInfo();
+	public abstract Header.Accessor header(Header header);
+//
+//	public abstract Multimap<Header<?>, String> headers();
+//
+	public abstract Path path();
 	
-	public Parameters params() {
-		return params;
+	public abstract Path contextPath();
+//	
+//	public Parameters params() {
+//		return params;
+//	}
+//	
+//	public <K> K param(Parameter<K> key) {
+//		return params.get(key);
+//	}
+
+	public static Environment fromRequest(final Request req) {
+		return new Environment() {
+			
+			@Override
+			public Version version() {
+				return req.version();
+			}
+			
+			@Override
+			public Path path() {
+				return emptyPath();
+			}
+			
+			@Override
+			public Method method() {
+				return req.method();
+			}
+			
+			@Override
+			public Path contextPath() {
+				return emptyPath();
+			}
+
+			@Override
+			public Header.Accessor header(Header header) {
+				return req.header(header);
+			}
+		};
+	}
+
+	public enum Depth { 
+		
+		ZERO {
+			public String toString() {
+				return "0";
+			}
+		},
+		
+		ONE {
+			public String toString() {
+				return "1";
+			}
+		},
+		
+		INFINITY {
+			public String toString() {
+				return "infinity";
+			}
+		};
+
+		public Depth decreaseDepth() {
+			return (this == INFINITY ? INFINITY : ZERO);
+		}
+		
+		public static final Depth parse(@Nonnull String depth, @Nonnull Depth defaultDepth) {
+			try {
+				if("infinity".equalsIgnoreCase(depth)) {
+					return defaultDepth;
+				} else {
+					return (Integer.parseInt(depth) == 0 ? Depth.ZERO : Depth.ONE);
+				}
+			} catch (NumberFormatException e) {
+				return defaultDepth;
+			}
+		}
+		
 	}
 	
-	public <K> K param(Parameter<K> key) {
-		return params.get(key);
+	public Depth depth() {
+		return Depth.parse(header(Header.DEPTH).getOnlyElementWithDefault(""), Depth.INFINITY);
+	}
+
+	public ByteBuffer body() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

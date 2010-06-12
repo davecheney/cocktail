@@ -13,5 +13,8 @@
   <description>Mixing web services in Java</description>
   <modules>
   	<module>cocktail-core</module>
+  	<module>cocktail-middleware</module>
+  	<module>cocktail-httpsimple</module>
+  	<module>cocktail-dav</module>
   </modules>
 </project>
