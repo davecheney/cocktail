@@ -1,30 +1,52 @@
 package net.cheney.cocktail.application;
 
+import static org.apache.commons.lang.StringUtils.join;
+import static org.apache.commons.lang.StringUtils.split;
+
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Iterator;
 
-public abstract class Path implements Comparable<Path>, Iterable<String> {
+import com.google.common.collect.Iterators;
 
+public class Path implements Iterable<String> {
+
+	private String[] parts;
+
+	private Path(String[] parts) {
+		this.parts = parts;
+	}
+	
 	public static Path emptyPath() {
-		return new Path() {
-
-			@Override
-			public int compareTo(Path o) {
-				// TODO Auto-generated method stub
-				return 0;
-			}
-
-			@Override
-			public Iterator<String> iterator() {
-				return Arrays.asList(new String[0]).iterator();
-			} 
-			
-			@Override
-			public String toString() {
-				return "/";
-			}
-		};
+		return new Path(new String[0]);
+	}
+	
+	public static Path fromURI(URI uri) {
+		String path = uri.getPath();
+		return path.equals("/") ? emptyPath() : new Path(split(path, '/')); 
 	}
 
+	@Override
+	public String toString() {
+		return parts.length == 0 ? "/" : "/" + join(parts, '/'); 
+	}
+
+	@Override
+	public Iterator<String> iterator() {
+		return Iterators.forArray(parts);
+	}
 	
+	@Override
+	public boolean equals(Object that) {
+		if(that instanceof Path) {
+			return Arrays.equals(((Path)that).parts, this.parts);
+		} else {
+			return false;
+		}
+	}
+
+	public static Path create(String... string) {
+		return new Path(string);
+	}
+
 }

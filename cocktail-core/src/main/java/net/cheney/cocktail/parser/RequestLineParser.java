@@ -7,11 +7,15 @@ import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+import org.apache.log4j.Logger;
+
 import net.cheney.cocktail.message.Request.Method;
 import net.cheney.cocktail.message.Request.RequestLine;
 import net.cheney.cocktail.message.Version;
 
 public class RequestLineParser extends HttpParser<RequestLine> {
+	
+	private static final Logger LOG = Logger.getLogger(RequestLineParser.class);
 	
 	private enum State {
 		REQUEST_LINE_END, HTTP_VERSION, REQUEST_URI, METHOD
@@ -111,7 +115,7 @@ public class RequestLineParser extends HttpParser<RequestLine> {
 				switch (buffer.get()) {
 				case '\n':
 					try {
-						return new RequestLine(method, url, version);
+						return log(new RequestLine(method, url, version));
 					} catch (URISyntaxException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -125,6 +129,11 @@ public class RequestLineParser extends HttpParser<RequestLine> {
 		}
 		buffer.position(offset);
 		return null;
+	}
+
+	private RequestLine log(RequestLine requestLine) {
+		LOG.debug(requestLine);
+		return requestLine;
 	}
 	
 }

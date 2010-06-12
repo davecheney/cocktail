@@ -43,7 +43,7 @@ public abstract class Environment {
 			
 			@Override
 			public Path path() {
-				return emptyPath();
+				return Path.fromURI(req.uri());
 			}
 			
 			@Override

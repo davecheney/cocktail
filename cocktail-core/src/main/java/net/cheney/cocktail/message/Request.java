@@ -91,5 +91,7 @@ public abstract class Request extends Message {
 	}
 
 	public abstract Method method();
+
+	public abstract URI uri();
 	
 }

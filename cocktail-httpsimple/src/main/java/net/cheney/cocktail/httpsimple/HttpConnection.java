@@ -14,6 +14,7 @@ import java.nio.charset.Charset;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.log4j.Logger;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -32,6 +33,8 @@ import net.cheney.cocktail.message.Request.Method;
 import net.cheney.cocktail.parser.RequestParser;
 
 public class HttpConnection {
+	
+	private static final Logger LOG = Logger.getLogger(HttpConnection.class);
 
 	enum ReadState {
 		READ_REQUEST_LINE, READ_BODY, PANIC
@@ -119,12 +122,10 @@ public class HttpConnection {
 	private ReadState readRequestLine() throws IOException {
 		request = requestParser.parse(channelReader.read());
 		if (request == null) {
-			try {
-				return ReadState.READ_REQUEST_LINE;
-			} finally {
-				enableReadInterest();
-			}
+			enableReadInterest();
+			return ReadState.READ_REQUEST_LINE;
 		} else {
+//			logRequest();
 			long contentLength = request.contentLength();
 			if(contentLength > 0 ) {
 				body = ByteBuffer.allocate((int) contentLength);
@@ -133,6 +134,10 @@ public class HttpConnection {
 				return handleRequest();
 			}
 		}
+	}
+
+	private void logRequest() {
+		LOG.debug(ReflectionToStringBuilder.toString(request));
 	}
 
 	private void enableReadInterest() {
@@ -230,33 +235,7 @@ public class HttpConnection {
 	}
 
 	private Environment createEnvironment(final Request request) {
-		return new Environment() {
-
-			@Override
-			public Version version() {
-				return request.version();
-			}
-
-			@Override
-			public Path path() {
-				return Path.emptyPath();
-			}
-
-			@Override
-			public Method method() {
-				return request.method();
-			}
-
-			@Override
-			public Path contextPath() {
-				return Path.emptyPath();
-			}
-
-			@Override
-			public Accessor header(Header header) {
-				return request.header(header);
-			}
-		};
+		return Environment.fromRequest(request);
 	}
 
 	protected <T> T panic() {

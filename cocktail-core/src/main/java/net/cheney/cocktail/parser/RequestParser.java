@@ -1,6 +1,7 @@
 package net.cheney.cocktail.parser;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.ByteBuffer;
 
 import net.cheney.cocktail.message.Header;
@@ -52,6 +53,11 @@ public class RequestParser extends HttpParser<Request>{
 			@Override
 			public Version version() {
 				return rl.version();
+			}
+			
+			@Override
+			public URI uri() {
+				return rl.uri();
 			}
 
 			@Override
