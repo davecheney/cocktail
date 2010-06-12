@@ -241,26 +241,24 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 			} else {
 				if (destination.exists()) { // source exists
 					if (destination.isCollection()) { // source exists,
-						if (destination.isCollection()) {
-							if(overwrite) {
-								source.moveTo(destination);
-								return successNoContent().call(env);
-							} else {
-								return clientErrorPreconditionFailed().call(env);
-							}
+						if(overwrite) {
+							source.moveTo(destination);
+							return successNoContent().call(env);
 						} else {
-							if(overwrite) {
-								source.moveTo(destination.parent());
-								return successNoContent().call(env);
-							} else {
-								return clientErrorPreconditionFailed().call(env);
-							}
+							return clientErrorPreconditionFailed().call(env);
+						}
+					} else {
+						if(overwrite) {
+							source.moveTo(destination);
+							return successNoContent().call(env);
+						} else {
+							return clientErrorPreconditionFailed().call(env);
 						}
 					}
 				} else {
 					if (destination.parent().exists()) {
 						source.moveTo(destination);
-						return successNoContent().call(env);
+						return successCreated().call(env);
 					} else {
 						return clientErrorConflict().call(env);
 					}
