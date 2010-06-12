@@ -21,6 +21,8 @@ import net.cheney.snax.model.Element;
 import net.cheney.snax.model.QName;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
@@ -276,6 +278,11 @@ public class FileResource extends ApplicationResource {
 		ByteBuffer buffer = channel.map(MapMode.READ_ONLY, 0, file.length());
 		channel.close();
 		return buffer;
+	}
+	
+	@Override
+	public String toString() {
+		return ReflectionToStringBuilder.toString(this, ToStringStyle.SIMPLE_STYLE);
 	}
 
 }

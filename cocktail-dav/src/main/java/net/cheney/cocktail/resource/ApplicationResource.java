@@ -14,6 +14,7 @@ import static net.cheney.cocktail.dav.Responses.successNoContent;
 import static net.cheney.cocktail.resource.Elements.multistatus;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -75,7 +76,7 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 
 	private Response copy(Environment env) throws IOException {
 		final Resource source = this;
-		final Resource destination = providor().resolveResource(Path.create(StringUtils.split(env.header(Header.DESTINATION).getOnlyElement(), '/')));
+		final Resource destination = providor().resolveResource(Path.fromURI(URI.create(env.header(Header.DESTINATION).getOnlyElement())));
 		
 		if (destination.isLocked()) {
 			return clientErrorLocked().call(env);
@@ -89,12 +90,14 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 					if (destination.isCollection()) {
 						if(overwrite) {
 							source.copyTo(destination);
+							return successNoContent().call(env);
 						} else {
 							return clientErrorPreconditionFailed().call(env);
 						}
 					} else {
 						if(overwrite) {
 							source.copyTo(destination.parent());
+							return successCreated().call(env);
 						} else {
 							return clientErrorPreconditionFailed().call(env);
 						}
@@ -102,6 +105,7 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 				} else {
 					if(destination.parent().exists()) {
 						source.copyTo(destination);
+						return successNoContent().call(env);
 					} else {
 						return clientErrorPreconditionFailed().call(env);
 					}
@@ -112,12 +116,14 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 						if (destination.isCollection()) {
 							if(overwrite) {
 								source.copyTo(destination);
+								return successNoContent().call(env);
 							} else {
 								return clientErrorPreconditionFailed().call(env);
 							}
 						} else {
 							if(overwrite) {
 								source.copyTo(destination.parent());
+								return successNoContent().call(env);
 							} else {
 								return clientErrorPreconditionFailed().call(env);
 							}
@@ -125,11 +131,8 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 					}
 				} else {
 					if (destination.parent().exists()) {
-						if(destination.parent().exists()) {
-							source.copyTo(destination);
-						} else {
-							return clientErrorPreconditionFailed().call(env);
-						}
+						source.copyTo(destination);
+						return successCreated().call(env);
 					} else {
 						return clientErrorConflict().call(env);
 					}
@@ -192,7 +195,7 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 
 	private Response move(Environment env) {
 		final Resource source = this;
-		final Resource destination = providor().resolveResource(Path.create(StringUtils.split(env.header(Header.DESTINATION).getOnlyElement(), '/')));
+		final Resource destination = providor().resolveResource(Path.fromURI(URI.create(env.header(Header.DESTINATION).getOnlyElement())));
 		
 		if (destination.isLocked()) {
 			return clientErrorLocked().call(env);
