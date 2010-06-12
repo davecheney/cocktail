@@ -206,7 +206,8 @@ public class FileResource extends ApplicationResource {
 		File f = new File(file, name);
 		FileOutputStream fos = new FileOutputStream(f);
 		FileChannel fc = fos.getChannel();
-		fc.write(buffer);
+		fc.write((ByteBuffer) buffer.flip());
+		fc.close();
 		return new FileResource(providor, f);
 	}
 
@@ -272,7 +273,7 @@ public class FileResource extends ApplicationResource {
 	@Override
 	public ByteBuffer body() throws IOException {
 		FileChannel channel = channel();
-		ByteBuffer buffer = channel.map(MapMode.READ_ONLY, 0, size());
+		ByteBuffer buffer = channel.map(MapMode.READ_ONLY, 0, file.length());
 		channel.close();
 		return buffer;
 	}
