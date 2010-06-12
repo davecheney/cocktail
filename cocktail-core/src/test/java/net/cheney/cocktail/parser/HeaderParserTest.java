@@ -1,19 +1,15 @@
 package net.cheney.cocktail.parser;
 
 import static junit.framework.Assert.assertNotNull;
-import static org.junit.Assert.*;
 
 import java.util.Arrays;
-import java.util.Iterator;
 
 import net.cheney.cocktail.message.Header;
-import net.cheney.cocktail.parser.HeaderParser;
-import net.cheney.cocktail.parser.Headers;
 
+import org.junit.Assert;
 import org.junit.Test;
 
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
+import com.google.common.collect.Iterables;
 
 public class HeaderParserTest {
 
@@ -26,7 +22,9 @@ public class HeaderParserTest {
 		HeaderParser parser = new HeaderParser();
 		Headers headers = parser.parse(string);
 		assertNotNull(headers);
-		System.out.println(headers.headers());
+		Iterable<String> expected = Arrays.asList("1.0 ricky", "1.1 ethel", "1.1 fred", "1.0 lucy");
+		Iterable<String> actual = headers.header(Header.VIA);
+		Assert.assertTrue(Iterables.elementsEqual(expected, actual));
 	}
 	
 	@Test public void testViaHeader() {
@@ -34,6 +32,8 @@ public class HeaderParserTest {
 		HeaderParser parser = new HeaderParser();
 		Headers headers = parser.parse(string);
 		assertNotNull(headers);
-		assertEquals(Lists.newArrayList(headers.header(Header.VIA)), Arrays.asList("1.0 fred", "1.1 nowhere.com (Apache/1.1)"));
+		Iterable<String> expected = Arrays.asList("1.0 fred", "1.1 nowhere.com (Apache/1.1)");
+		Iterable<String> actual = headers.header(Header.VIA);
+		Assert.assertTrue(Iterables.elementsEqual(expected, actual));
 	}
 }

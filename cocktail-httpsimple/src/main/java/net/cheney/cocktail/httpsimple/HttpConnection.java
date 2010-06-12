@@ -125,7 +125,6 @@ public class HttpConnection {
 			enableReadInterest();
 			return ReadState.READ_REQUEST_LINE;
 		} else {
-//			logRequest();
 			long contentLength = request.contentLength();
 			if(contentLength > 0 ) {
 				body = ByteBuffer.allocate((int) contentLength);
@@ -134,10 +133,6 @@ public class HttpConnection {
 				return handleRequest();
 			}
 		}
-	}
-
-	private void logRequest() {
-		LOG.debug(ReflectionToStringBuilder.toString(request));
 	}
 
 	private void enableReadInterest() {
@@ -166,6 +161,7 @@ public class HttpConnection {
 	}
 
 	private void sendResponse(Response response, boolean closeRequested) throws IOException {
+		log(response);
 		ByteBuffer header = buildHeaderBuffer(response, closeRequested);
 		if (response.hasBody()) {
 			if (response.buffer() != null) {
@@ -176,6 +172,10 @@ public class HttpConnection {
 		} else {
 			write(header);
 		}
+	}
+
+	private void log(Response response) {
+		LOG.debug(format("%s %s: %s", response.version(), response.status(), response.headers()));
 	}
 
 	private void write(ByteBuffer header, FileChannel channel, long count) throws IOException {

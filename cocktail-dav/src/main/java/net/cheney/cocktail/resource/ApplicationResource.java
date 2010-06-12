@@ -1,14 +1,17 @@
 package net.cheney.cocktail.resource;
 
 import static net.cheney.cocktail.dav.Responses.clientErrorConflict;
+import static net.cheney.cocktail.dav.Responses.clientErrorLocked;
 import static net.cheney.cocktail.dav.Responses.clientErrorMethodNotAllowed;
 import static net.cheney.cocktail.dav.Responses.clientErrorNotFound;
 import static net.cheney.cocktail.dav.Responses.serverErrorInternal;
 import static net.cheney.cocktail.dav.Responses.serverErrorNotImplemented;
 import static net.cheney.cocktail.dav.Responses.successCreated;
 import static net.cheney.cocktail.dav.Responses.successMultiStatus;
+import static net.cheney.cocktail.dav.Responses.successNoContent;
 import static net.cheney.cocktail.resource.Elements.multistatus;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -16,6 +19,7 @@ import java.util.List;
 import net.cheney.cocktail.application.Application;
 import net.cheney.cocktail.application.Environment;
 import net.cheney.cocktail.application.Environment.Depth;
+import net.cheney.cocktail.dav.Responses;
 import net.cheney.cocktail.message.Header;
 import net.cheney.cocktail.message.Request.Method;
 import net.cheney.cocktail.message.Response;
@@ -46,10 +50,47 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 			
 		case PUT:
 			return put(env);
+			
+		case DELETE:
+			return delete(env);
+			
+		case GET:
+			return get(env);
 		
 		default:
 			return serverErrorNotImplemented().call(env);
 		}
+	}
+
+	private Response get(Environment env) {
+		try {
+			return exists() ? Response.builder(Status.SUCCESS_OK).body(body()).build() : clientErrorNotFound().call(env);
+		} catch (IOException e) {
+			return serverErrorInternal().call(env);
+		}
+	}
+
+	private Response delete(Environment env) {
+//		if (fragment != null) {
+//			return clientErrorMethodNotAllowed();
+//		} else {
+			if (isLocked()) {
+				return clientErrorLocked().call(env);
+			}
+			if (exists()) {
+				if (isLocked()) {
+					return clientErrorLocked().call(env);
+				} else {
+					if (isCollection()) {
+						return (delete() ? successNoContent() : serverErrorInternal()).call(env);
+					} else {
+						return (delete() ? successNoContent() : serverErrorInternal()).call(env);
+					}
+				}
+			} else {
+				return clientErrorNotFound().call(env);
+			}
+//		}
 	}
 
 	private Response put(Environment env) {

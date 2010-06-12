@@ -20,6 +20,7 @@ import javax.annotation.concurrent.Immutable;
 import net.cheney.cocktail.message.Header.Accessor;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -275,7 +276,7 @@ public abstract class Response extends Message {
 		private ByteBuffer buffer;
 		private Multimap<Header, String> headers = ArrayListMultimap.create();
 
-		public Builder(StatusCode status) {
+		private Builder(StatusCode status) {
 			this.status = status;
 		}
 		
@@ -328,12 +329,17 @@ public abstract class Response extends Message {
 
 				@Override
 				public Iterable<Header> headers() {
-					return headers.keys();
+					return headers.keySet();
 				}
 
 				@Override
 				public Accessor header(Header header) {
 					return new HeaderAccessor(header);
+				}
+				
+				@Override
+				public String toString() {
+					return ReflectionToStringBuilder.toString(this, ToStringStyle.SIMPLE_STYLE);
 				}
 				
 			};

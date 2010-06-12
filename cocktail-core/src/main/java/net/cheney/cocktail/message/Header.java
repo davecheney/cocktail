@@ -41,7 +41,7 @@ public abstract class Header {
 	
 	DATE = $("Date", Type.GENERAL),
 	
-	DAV = $("DAV", Type.RESPONSE), 
+	DAV = $("Dav", Type.RESPONSE), 
 	DEPTH = $("Depth", Type.REQUEST), 
 	DESTINATION = $("Destination", Type.REQUEST),
 	
@@ -125,6 +125,10 @@ public abstract class Header {
 				return name;
 			}
 			
+			@Override
+			public String toString() {
+				return name();
+			}
 		};
 	}
 	

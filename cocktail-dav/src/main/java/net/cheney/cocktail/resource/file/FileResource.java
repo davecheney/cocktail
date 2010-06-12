@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.ArrayList;
@@ -18,7 +19,6 @@ import net.cheney.cocktail.resource.CollectionResource;
 import net.cheney.cocktail.resource.Resource;
 import net.cheney.snax.model.Element;
 import net.cheney.snax.model.QName;
-import net.cheney.snax.util.Predicate;
 
 import org.apache.commons.io.FileUtils;
 
@@ -252,6 +252,26 @@ public class FileResource extends ApplicationResource {
 	@Override
 	public boolean makeCollection(String name) {
 		return new File(file, name).mkdir();
+	}
+
+	@Override
+	public void lock() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void unlock() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ByteBuffer body() throws IOException {
+		FileChannel channel = channel();
+		ByteBuffer buffer = channel.map(MapMode.READ_ONLY, 0, size());
+		channel.close();
+		return buffer;
 	}
 
 }

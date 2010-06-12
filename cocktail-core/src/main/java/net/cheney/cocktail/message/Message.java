@@ -29,8 +29,7 @@ public abstract class Message {
 	}
 
 	public boolean closeRequested() {
-		Header.Accessor connection = header(Header.CONNECTION);
-		return "close".equalsIgnoreCase(connection.getOnlyElementWithDefault(""));
+		return "close".equalsIgnoreCase(header(Header.CONNECTION).getOnlyElementWithDefault(""));
 	}
 	
 	public abstract Version version();
