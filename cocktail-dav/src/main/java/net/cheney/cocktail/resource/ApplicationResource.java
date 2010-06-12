@@ -4,6 +4,7 @@ import static net.cheney.cocktail.dav.Responses.clientErrorConflict;
 import static net.cheney.cocktail.dav.Responses.clientErrorLocked;
 import static net.cheney.cocktail.dav.Responses.clientErrorMethodNotAllowed;
 import static net.cheney.cocktail.dav.Responses.clientErrorNotFound;
+import static net.cheney.cocktail.dav.Responses.clientErrorPreconditionFailed;
 import static net.cheney.cocktail.dav.Responses.clientErrorUnsupportedMediaType;
 import static net.cheney.cocktail.dav.Responses.serverErrorInternal;
 import static net.cheney.cocktail.dav.Responses.serverErrorNotImplemented;
@@ -17,9 +18,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import net.cheney.cocktail.application.Application;
 import net.cheney.cocktail.application.Environment;
 import net.cheney.cocktail.application.Environment.Depth;
+import net.cheney.cocktail.application.Path;
 import net.cheney.cocktail.message.Header;
 import net.cheney.cocktail.message.Request.Method;
 import net.cheney.cocktail.message.Response;
@@ -46,7 +50,11 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 			return mkcol(env);
 			
 		case COPY:
-			return copy(env);
+			try {
+				return copy(env);
+			} catch (IOException e) {
+				return serverErrorInternal(e).call(env);
+			}
 			
 		case MOVE:
 			return move(env);
@@ -65,9 +73,73 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 		}
 	}
 
-	private Response copy(Environment env) {
+	private Response copy(Environment env) throws IOException {
+		final Resource source = this;
+		final Resource destination = providor().resolveResource(Path.create(StringUtils.split(env.header(Header.DESTINATION).getOnlyElement(), '/')));
+		
+		if (destination.isLocked()) {
+			return clientErrorLocked().call(env);
+		}
+		
+		boolean overwrite = env.header(Header.OVERWRITE).getOnlyElementWithDefault("T").equals("T");
+		
+		if (source.exists()) {
+			if (source.isCollection()) { // source exists
+				if (destination.exists()) { // source exists and is a collection
+					if (destination.isCollection()) {
+						if(overwrite) {
+							source.copyTo(destination);
+						} else {
+							return clientErrorPreconditionFailed().call(env);
+						}
+					} else {
+						if(overwrite) {
+							source.copyTo(destination.parent());
+						} else {
+							return clientErrorPreconditionFailed().call(env);
+						}
+					}
+				} else {
+					if(destination.parent().exists()) {
+						source.copyTo(destination);
+					} else {
+						return clientErrorPreconditionFailed().call(env);
+					}
+				}
+			} else {
+				if (destination.exists()) { // source exists
+					if (destination.isCollection()) { // source exists,
+						if (destination.isCollection()) {
+							if(overwrite) {
+								source.copyTo(destination);
+							} else {
+								return clientErrorPreconditionFailed().call(env);
+							}
+						} else {
+							if(overwrite) {
+								source.copyTo(destination.parent());
+							} else {
+								return clientErrorPreconditionFailed().call(env);
+							}
+						}
+					}
+				} else {
+					if (destination.parent().exists()) {
+						if(destination.parent().exists()) {
+							source.copyTo(destination);
+						} else {
+							return clientErrorPreconditionFailed().call(env);
+						}
+					} else {
+						return clientErrorConflict().call(env);
+					}
+				}
+			}
+		} 
 		return clientErrorNotFound().call(env);
 	}
+
+	protected abstract ResourceProvidor providor();
 
 	private Response get(Environment env) {
 		try {
@@ -119,51 +191,68 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 	}
 
 	private Response move(Environment env) {
-//		Resource source = this, destination = resolveResource(env.header(Header.DESTINATION).toString()));
-		boolean overwrite = false;
+		final Resource source = this;
+		final Resource destination = providor().resolveResource(Path.create(StringUtils.split(env.header(Header.DESTINATION).getOnlyElement(), '/')));
 		
-//		if (destination.isLocked()) {
-//			return Responses.clientErrorLocked().call(env);
-//		}
-
-//		if (source.exists()) {
-//			if (source.isCollection()) { // source exists
-//				if (destination.exists()) { // source exists and is a collection
-//					if (destination.isCollection()) {
-//						return (source.moveTo(destination) ? Responses.successNoContent() : Responses.clientErrorPreconditionFailed()).call(env); 
-//					} else {
-//						return (source.moveTo(destination.parent()) ? Responses.successNoContent() : Responses.clientErrorPreconditionFailed()).call(env)
-//					}
-//					} else {
-//						return (destination.parent().exists() ? moveCollectionToCollection(
-//								source, destination, false)
-//								: Response.clientErrorPreconditionFailed());
-//					}
-//				} else {
-//					if (destination.exists()) { // source exists
-//						if (destination.isCollection()) { // source exists,
-//							return (overwrite ? moveResourceToCollection(source,
-//									destination, overwrite)
-//									: Response.clientErrorPreconditionFailed());
-//						} else {
-//							return (overwrite ? moveResourceToResource(source,
-//									destination, overwrite)
-//									: Response.clientErrorPreconditionFailed());
-//						}
-//					} else {
-//						if (destination.parent().exists()) {
-//							return (overwrite ? Response.clientErrorPreconditionFailed()
-//									: moveResourceToCollection(source, destination,
-//											overwrite));
-//						} else {
-//							return clientErrorConflict();
-//						}
-//					}
-//				}
-//			} else {
-//				return Responses.clientErrorNotFound().call(env);
-//			}
-//		}
+		if (destination.isLocked()) {
+			return clientErrorLocked().call(env);
+		}
+		
+		boolean overwrite = env.header(Header.OVERWRITE).getOnlyElementWithDefault("T").equals("T");
+		
+		if (source.exists()) {
+			if (source.isCollection()) { // source exists
+				if (destination.exists()) { // source exists and is a collection
+					if (destination.isCollection()) {
+						if(overwrite) {
+							source.moveTo(destination);
+						} else {
+							return clientErrorPreconditionFailed().call(env);
+						}
+					} else {
+						if(overwrite) {
+							source.moveTo(destination.parent());
+						} else {
+							return clientErrorPreconditionFailed().call(env);
+						}
+					}
+				} else {
+					if(destination.parent().exists()) {
+						source.moveTo(destination);
+					} else {
+						return clientErrorPreconditionFailed().call(env);
+					}
+				}
+			} else {
+				if (destination.exists()) { // source exists
+					if (destination.isCollection()) { // source exists,
+						if (destination.isCollection()) {
+							if(overwrite) {
+								source.moveTo(destination);
+							} else {
+								return clientErrorPreconditionFailed().call(env);
+							}
+						} else {
+							if(overwrite) {
+								source.moveTo(destination.parent());
+							} else {
+								return clientErrorPreconditionFailed().call(env);
+							}
+						}
+					}
+				} else {
+					if (destination.parent().exists()) {
+						if(destination.parent().exists()) {
+							source.moveTo(destination);
+						} else {
+							return clientErrorPreconditionFailed().call(env);
+						}
+					} else {
+						return clientErrorConflict().call(env);
+					}
+				}
+			}
+		} 
 		return clientErrorNotFound().call(env);
 	}
 

@@ -12,12 +12,14 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
+import java.nio.charset.Charset;
 import java.util.Collection;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
 import net.cheney.cocktail.message.Header.Accessor;
+import net.cheney.cocktail.message.Response.Builder;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -378,6 +380,10 @@ public abstract class Response extends Message {
 		public Builder body(ByteBuffer buffer) {
 			this.buffer = buffer;
 			return this;
+		}
+
+		public Builder body(String string) {
+			return body(Charset.defaultCharset().encode(string));
 		}
 	}
 }

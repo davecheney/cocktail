@@ -52,9 +52,7 @@ public interface Environment {
 	@Nonnull Version version();
 
 	@Nonnull Header.Accessor header(Header header);
-//
-//	public abstract Multimap<Header<?>, String> headers();
-//
+
 	@Nonnull Path path();
 	
 	@Nonnull Path contextPath();
@@ -66,7 +64,6 @@ public interface Environment {
 //	public <K> K param(Parameter<K> key) {
 //		return params.get(key);
 //	}
-
 	
 	@Nonnull ByteBuffer body();
 

@@ -81,6 +81,17 @@ public class Responses {
 			
 		};
 	}
+	
+	public static Application serverErrorInternal(final Throwable t) {
+		return new Application() {
+
+			@Override
+			public Response call(Environment env) {
+				return Response.builder(Status.SERVER_ERROR_INTERNAL).body(t.toString()).build();
+			}
+			
+		};
+	}
 
 	public static Application clientErrorConflict() {
 		return new Application() {

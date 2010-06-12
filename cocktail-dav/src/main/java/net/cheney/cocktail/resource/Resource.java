@@ -8,7 +8,7 @@ import net.cheney.cocktail.message.Request.Method;
 import net.cheney.snax.model.Element;
 import net.cheney.snax.model.QName;
 
-public abstract class Resource implements Lockable, Getable, Deletable, CollectionResource, Moveable {
+public abstract class Resource implements Lockable, Getable, Deletable, CollectionResource, Moveable, Copyable {
 	
 	public enum ComplianceClass { LEVEL_1, LEVEL_2 };
 
