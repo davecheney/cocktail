@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 import net.cheney.cocktail.application.Application;
 import net.cheney.cocktail.application.Environment;
@@ -32,6 +32,8 @@ import net.cheney.cocktail.message.Response.Status;
 import net.cheney.snax.model.QName;
 
 public abstract class ApplicationResource extends Resource implements Application {
+	
+	private static final Logger LOG = Logger.getLogger(ApplicationResource.class);
 
 	private static final List<QName> ALL_PROPS = Arrays.asList(new QName[] {
 			Property.CREATION_DATE, Property.DISPLAY_NAME,
@@ -58,7 +60,11 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 			}
 			
 		case MOVE:
-			return move(env);
+			try {
+				return move(env);
+			} catch (IOException e) {
+				return serverErrorInternal(e).call(env);
+			}
 			
 		case PUT:
 			return put(env);
@@ -84,11 +90,14 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 		
 		boolean overwrite = env.header(Header.OVERWRITE).getOnlyElementWithDefault("T").equals("T");
 		
+		LOG.debug(String.format("COPY: src[%s], dest[%s], overwrite[%b]", source, destination, overwrite));
+		
 		if (source.exists()) {
 			if (source.isCollection()) { // source exists
 				if (destination.exists()) { // source exists and is a collection
 					if (destination.isCollection()) {
 						if(overwrite) {
+							destination.delete();
 							source.copyTo(destination);
 							return successNoContent().call(env);
 						} else {
@@ -112,21 +121,19 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 				}
 			} else {
 				if (destination.exists()) { // source exists
-					if (destination.isCollection()) { // source exists,
-						if (destination.isCollection()) {
-							if(overwrite) {
-								source.copyTo(destination);
-								return successNoContent().call(env);
-							} else {
-								return clientErrorPreconditionFailed().call(env);
-							}
+					if (destination.isCollection()) {
+						if(overwrite) {
+							source.copyTo(destination);
+							return successNoContent().call(env);
 						} else {
-							if(overwrite) {
-								source.copyTo(destination.parent());
-								return successNoContent().call(env);
-							} else {
-								return clientErrorPreconditionFailed().call(env);
-							}
+							return clientErrorPreconditionFailed().call(env);
+						}
+					} else {
+						if(overwrite) {
+							source.copyTo(destination);
+							return successNoContent().call(env);
+						} else {
+							return clientErrorPreconditionFailed().call(env);
 						}
 					}
 				} else {
@@ -141,14 +148,14 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 		} 
 		return clientErrorNotFound().call(env);
 	}
-
+	
 	protected abstract ResourceProvidor providor();
 
 	private Response get(Environment env) {
 		try {
 			return exists() ? Response.builder(Status.SUCCESS_OK).body(body()).build() : clientErrorNotFound().call(env);
 		} catch (IOException e) {
-			return serverErrorInternal().call(env);
+			return serverErrorInternal(e).call(env);
 		}
 	}
 
@@ -164,9 +171,9 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 					return clientErrorLocked().call(env);
 				} else {
 					if (isCollection()) {
-						return (delete() ? successNoContent() : serverErrorInternal()).call(env);
+						return (delete() ? successNoContent() : serverErrorInternal(new IOException("Cannot delete"))).call(env);
 					} else {
-						return (delete() ? successNoContent() : serverErrorInternal()).call(env);
+						return (delete() ? successNoContent() : serverErrorInternal(new IOException("Cannot delete"))).call(env);
 					}
 				}
 			} else {
@@ -188,12 +195,12 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 			parent().create(name(), env.body());
 			return successCreated().call(env);
 		} catch (IOException e) {
-			return serverErrorInternal().call(env);
+			return serverErrorInternal(e).call(env);
 		}
 		
 	}
 
-	private Response move(Environment env) {
+	private Response move(Environment env) throws IOException {
 		final Resource source = this;
 		final Resource destination = providor().resolveResource(Path.fromURI(URI.create(env.header(Header.DESTINATION).getOnlyElement())));
 		
@@ -203,18 +210,22 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 		
 		boolean overwrite = env.header(Header.OVERWRITE).getOnlyElementWithDefault("T").equals("T");
 		
+		LOG.debug(String.format("MOVE: src[%s], dest[%s], overwrite[%b]", source, destination, overwrite));
+		
 		if (source.exists()) {
 			if (source.isCollection()) { // source exists
 				if (destination.exists()) { // source exists and is a collection
 					if (destination.isCollection()) {
 						if(overwrite) {
 							source.moveTo(destination);
+							return successNoContent().call(env);
 						} else {
 							return clientErrorPreconditionFailed().call(env);
 						}
 					} else {
 						if(overwrite) {
-							source.moveTo(destination.parent());
+							source.moveTo(destination);
+							return successCreated().call(env);
 						} else {
 							return clientErrorPreconditionFailed().call(env);
 						}
@@ -222,6 +233,7 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 				} else {
 					if(destination.parent().exists()) {
 						source.moveTo(destination);
+						return successNoContent().call(env);
 					} else {
 						return clientErrorPreconditionFailed().call(env);
 					}
@@ -232,12 +244,14 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 						if (destination.isCollection()) {
 							if(overwrite) {
 								source.moveTo(destination);
+								return successNoContent().call(env);
 							} else {
 								return clientErrorPreconditionFailed().call(env);
 							}
 						} else {
 							if(overwrite) {
 								source.moveTo(destination.parent());
+								return successNoContent().call(env);
 							} else {
 								return clientErrorPreconditionFailed().call(env);
 							}
@@ -245,11 +259,8 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 					}
 				} else {
 					if (destination.parent().exists()) {
-						if(destination.parent().exists()) {
-							source.moveTo(destination);
-						} else {
-							return clientErrorPreconditionFailed().call(env);
-						}
+						source.moveTo(destination);
+						return successNoContent().call(env);
 					} else {
 						return clientErrorConflict().call(env);
 					}
@@ -268,7 +279,7 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 		} else {
 			Resource parent = parent();
 			if (parent.exists()) {
-				return (parent.makeCollection(name()) ? successCreated() : serverErrorInternal()).call(env);
+				return (parent.makeCollection(name()) ? successCreated() : serverErrorInternal(new IOException("Cannot create"))).call(env);
 			} else {
 				return clientErrorConflict().call(env);
 			}

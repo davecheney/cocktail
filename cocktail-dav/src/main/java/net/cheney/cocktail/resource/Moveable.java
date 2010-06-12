@@ -1,6 +1,8 @@
 package net.cheney.cocktail.resource;
 
+import java.io.IOException;
+
 public interface Moveable {
 
-	boolean moveTo(CollectionResource destination);
+	void moveTo(CollectionResource destination) throws IOException;
 }

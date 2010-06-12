@@ -109,6 +109,11 @@ public class HeaderParser extends HttpParser<Headers> {
 			public String name() {
 				return s;
 			}
+			
+			@Override
+			public String toString() {
+				return name();
+			}
 
 		};	
 	}
@@ -171,6 +176,11 @@ public class HeaderParser extends HttpParser<Headers> {
 		@Override
 		public HeaderAccessor header(Header header) {
 			return new HeaderAccessor(header);
+		}
+		
+		@Override
+		public String toString() {
+			return headerMap.toString();
 		}
 		
 	}

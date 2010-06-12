@@ -71,17 +71,6 @@ public class Responses {
 		};
 	}
 
-	public static Application serverErrorInternal() {
-		return new Application() {
-
-			@Override
-			public Response call(Environment env) {
-				return Response.builder(Status.SERVER_ERROR_INTERNAL).build();
-			}
-			
-		};
-	}
-	
 	public static Application serverErrorInternal(final Throwable t) {
 		return new Application() {
 

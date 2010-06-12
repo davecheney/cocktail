@@ -126,7 +126,7 @@ public class FileResource extends ApplicationResource {
 		}
 	}
 	
-	public void moveTo(final Resource destination) throws IOException {
+	public void moveTo(CollectionResource destination) throws IOException {
 		File dest = ((FileResource)destination).file;
 		File source = this.file;
 		
@@ -235,12 +235,6 @@ public class FileResource extends ApplicationResource {
 
 	private Iterable<File> filterHidden(Iterable<File> files) {
 		return files;
-	}
-
-	@Override
-	public boolean moveTo(CollectionResource destination) {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 	@Override
