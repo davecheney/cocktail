@@ -70,6 +70,12 @@ public class RequestParser extends HttpParser<Request>{
 				return h.header(header);
 			}
 			
+			@Override
+			public ByteBuffer body() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+			
 		};
 	}
 

@@ -33,7 +33,7 @@ public abstract class Environment {
 //		return params.get(key);
 //	}
 
-	public static Environment fromRequest(final Request req) {
+	public static Environment fromRequest(final Request req, final ByteBuffer body) {
 		return new Environment() {
 			
 			@Override
@@ -59,6 +59,11 @@ public abstract class Environment {
 			@Override
 			public Header.Accessor header(Header header) {
 				return req.header(header);
+			}
+			
+			@Override
+			public ByteBuffer body() {
+				return body.asReadOnlyBuffer();
 			}
 		};
 	}
@@ -105,8 +110,5 @@ public abstract class Environment {
 		return Depth.parse(header(Header.DEPTH).getOnlyElementWithDefault(""), Depth.INFINITY);
 	}
 
-	public ByteBuffer body() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public abstract ByteBuffer body();
 }

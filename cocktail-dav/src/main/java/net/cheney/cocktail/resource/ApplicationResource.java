@@ -102,8 +102,13 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 			return clientErrorMethodNotAllowed().call(env);
 		}
 
-		parent().create(name(), env.body());
-		return successCreated().call(env);
+		try {
+			parent().create(name(), env.body());
+			return successCreated().call(env);
+		} catch (IOException e) {
+			return serverErrorInternal().call(env);
+		}
+		
 	}
 
 	private Response move(Environment env) {

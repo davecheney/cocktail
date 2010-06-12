@@ -202,9 +202,12 @@ public class FileResource extends ApplicationResource {
 	}
 
 	@Override
-	public Resource create(String name, ByteBuffer buffer) {
-		// TODO Auto-generated method stub
-		return null;
+	public Resource create(String name, ByteBuffer buffer) throws IOException {
+		File f = new File(file, name);
+		FileOutputStream fos = new FileOutputStream(f);
+		FileChannel fc = fos.getChannel();
+		fc.write(buffer);
+		return new FileResource(providor, f);
 	}
 
 	@Override

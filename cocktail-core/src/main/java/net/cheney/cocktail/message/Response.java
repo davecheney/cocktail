@@ -248,7 +248,9 @@ public abstract class Response extends Message {
 //		return new Builder(status);
 //	}
 
-	public abstract boolean hasBody();
+	public boolean hasBody() {
+		return body() != null;
+	}
 
 	public abstract ByteBuffer buffer();
 
@@ -303,11 +305,6 @@ public abstract class Response extends Message {
 			return new Response() {
 
 				@Override
-				public boolean hasBody() {
-					return buffer != null;
-				}
-
-				@Override
 				public ByteBuffer buffer() {
 					return buffer.asReadOnlyBuffer();
 				}
@@ -340,6 +337,11 @@ public abstract class Response extends Message {
 				@Override
 				public String toString() {
 					return ReflectionToStringBuilder.toString(this, ToStringStyle.SIMPLE_STYLE);
+				}
+
+				@Override
+				public ByteBuffer body() {
+					return buffer;
 				}
 				
 			};

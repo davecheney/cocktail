@@ -1,6 +1,7 @@
 package net.cheney.cocktail.message;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import javax.annotation.Nonnull;
 
@@ -46,5 +47,7 @@ public abstract class Message {
 	public TransferEncoding transferCoding() {
 		return TransferEncoding.NONE;
 	}
+	
+	public abstract ByteBuffer body();
 		
 }

@@ -12,25 +12,21 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 
+import net.cheney.cocktail.application.Application;
+import net.cheney.cocktail.application.Environment;
+import net.cheney.cocktail.channelio.ChannelReader;
+import net.cheney.cocktail.channelio.ChannelWriter;
+import net.cheney.cocktail.message.Header;
+import net.cheney.cocktail.message.Request;
+import net.cheney.cocktail.message.Response;
+import net.cheney.cocktail.parser.RequestParser;
+
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-
-import net.cheney.cocktail.application.Application;
-import net.cheney.cocktail.application.Environment;
-import net.cheney.cocktail.application.Path;
-import net.cheney.cocktail.channelio.ChannelReader;
-import net.cheney.cocktail.channelio.ChannelWriter;
-import net.cheney.cocktail.message.Header;
-import net.cheney.cocktail.message.Header.Accessor;
-import net.cheney.cocktail.message.Request;
-import net.cheney.cocktail.message.Response;
-import net.cheney.cocktail.message.Version;
-import net.cheney.cocktail.message.Request.Method;
-import net.cheney.cocktail.parser.RequestParser;
 
 public class HttpConnection {
 	
@@ -242,7 +238,7 @@ public class HttpConnection {
 	}
 
 	private Environment createEnvironment(final Request request) {
-		return Environment.fromRequest(request);
+		return Environment.fromRequest(request, body);
 	}
 
 	protected <T> T panic() {
