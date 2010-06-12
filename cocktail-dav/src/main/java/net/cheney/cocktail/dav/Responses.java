@@ -125,4 +125,15 @@ public class Responses {
 			
 		};
 	}
+
+	public static Application clientErrorUnsupportedMediaType() {
+		return new Application() {
+
+			@Override
+			public Response call(Environment env) {
+				return Response.builder(Status.CLIENT_ERROR_UNSUPPORTED_MEDIA_TYPE).build();
+			}
+			
+		};
+	}
 }

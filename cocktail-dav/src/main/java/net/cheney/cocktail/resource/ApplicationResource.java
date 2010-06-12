@@ -4,6 +4,7 @@ import static net.cheney.cocktail.dav.Responses.clientErrorConflict;
 import static net.cheney.cocktail.dav.Responses.clientErrorLocked;
 import static net.cheney.cocktail.dav.Responses.clientErrorMethodNotAllowed;
 import static net.cheney.cocktail.dav.Responses.clientErrorNotFound;
+import static net.cheney.cocktail.dav.Responses.clientErrorUnsupportedMediaType;
 import static net.cheney.cocktail.dav.Responses.serverErrorInternal;
 import static net.cheney.cocktail.dav.Responses.serverErrorNotImplemented;
 import static net.cheney.cocktail.dav.Responses.successCreated;
@@ -161,9 +162,9 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 	}
 
 	private Response mkcol(Environment env) {
-//		if (request.hasBody()) {
-//			return clientErrorUnsupportedMediaType();
-		
+		if (env.hasBody()) {
+			return clientErrorUnsupportedMediaType().call(env);
+		}
 		if(exists()) {
 			return clientErrorMethodNotAllowed().call(env);
 		} else {

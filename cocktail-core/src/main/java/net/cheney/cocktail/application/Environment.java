@@ -65,6 +65,11 @@ public abstract class Environment {
 			public ByteBuffer body() {
 				return body.asReadOnlyBuffer();
 			}
+			
+			@Override
+			public boolean hasBody() {
+				return body != null;
+			}
 		};
 	}
 
@@ -111,4 +116,6 @@ public abstract class Environment {
 	}
 
 	public abstract ByteBuffer body();
+
+	public abstract boolean hasBody();
 }
