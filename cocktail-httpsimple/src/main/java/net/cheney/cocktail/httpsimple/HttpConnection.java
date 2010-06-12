@@ -64,6 +64,7 @@ public class HttpConnection {
 
 	private void reset() throws IOException {
 		this.request = null;
+		this.body = null;
 		this.requestParser = new RequestParser();
 	}
 
@@ -144,8 +145,14 @@ public class HttpConnection {
 	}
 
 	private ReadState readBody() throws IOException {
+		LOG.debug("readBody: "+body);
 		body.put(channelReader.read());
-		return body.hasRemaining() ? ReadState.READ_BODY : handleRequest();
+		return body.hasRemaining() ? enableReadInterest(ReadState.READ_BODY) : handleRequest();
+	}
+
+	private ReadState enableReadInterest(ReadState s) {
+		enableReadInterest();
+		return s;
 	}
 
 	private ReadState handleRequest() throws IOException {
