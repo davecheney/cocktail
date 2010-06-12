@@ -198,9 +198,7 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 			builder.header(Header.ALLOW).add(method.name());
 		}
 		
-		for(ComplianceClass value : davOptions()) {
-			builder.header(Header.DAV).add(value.toString());
-		}
+		builder.header(Header.DAV).add("1");
 		
 		return builder.build();
 	}
