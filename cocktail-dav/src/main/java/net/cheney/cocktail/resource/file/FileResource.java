@@ -10,12 +10,15 @@ import java.nio.channels.FileChannel.MapMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 import net.cheney.cocktail.message.Request.Method;
 import net.cheney.cocktail.resource.ApplicationResource;
 import net.cheney.cocktail.resource.CollectionResource;
+import net.cheney.cocktail.resource.Elements;
+import net.cheney.cocktail.resource.Property;
 import net.cheney.cocktail.resource.Resource;
 import net.cheney.snax.model.Element;
 import net.cheney.snax.model.QName;
@@ -230,7 +233,7 @@ public class FileResource extends ApplicationResource {
 	}
 
 	private Iterable<File> childFiles() {
-		return Arrays.asList(file.listFiles());
+		return file.isDirectory() ? Arrays.asList(file.listFiles()) : Collections.<File>emptyList();
 	}
 
 	private Iterable<File> filterHidden(Iterable<File> files) {
@@ -239,7 +242,15 @@ public class FileResource extends ApplicationResource {
 
 	@Override
 	public Element property(QName name) {
-		// TODO Auto-generated method stub
+		if(name.equals(Property.DISPLAY_NAME)) {
+			return Elements.displayName(name());
+		} else if(name.equals(Property.RESOURCE_TYPE)) {
+			return Elements.resourceType(isCollection());
+		} else if(name.equals(Property.GET_CONTENT_LENGTH)) {
+			return Elements.getContentLength(size());
+		} else if(name.equals(Property.GET_LAST_MODIFIED)) {
+			return Elements.getLastModified(new Date(file.lastModified()));
+		}
 		return null;
 	}
 

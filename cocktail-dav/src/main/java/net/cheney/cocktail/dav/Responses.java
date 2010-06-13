@@ -92,6 +92,17 @@ public class Responses {
 			
 		};
 	}
+	
+	public static Application clientErrorBadRequest() {
+		return new Application() {
+
+			@Override
+			public Response call(Environment env) {
+				return Response.builder(Status.CLIENT_ERROR_BAD_REQUEST).build();
+			}
+			
+		};
+	}
 
 	public static Application clientErrorLocked() {
 		return new Application() {

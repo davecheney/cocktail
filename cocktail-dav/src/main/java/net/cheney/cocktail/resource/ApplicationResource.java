@@ -11,25 +11,41 @@ import static net.cheney.cocktail.dav.Responses.serverErrorNotImplemented;
 import static net.cheney.cocktail.dav.Responses.successCreated;
 import static net.cheney.cocktail.dav.Responses.successMultiStatus;
 import static net.cheney.cocktail.dav.Responses.successNoContent;
+import static net.cheney.cocktail.resource.Elements.href;
 import static net.cheney.cocktail.resource.Elements.multistatus;
+import static net.cheney.cocktail.resource.Elements.prop;
+import static net.cheney.cocktail.resource.Elements.propertyStatus;
+import static net.cheney.cocktail.resource.Elements.response;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+
 import net.cheney.cocktail.application.Application;
 import net.cheney.cocktail.application.Environment;
 import net.cheney.cocktail.application.Environment.Depth;
 import net.cheney.cocktail.application.Path;
+import net.cheney.cocktail.dav.Responses;
 import net.cheney.cocktail.message.Header;
 import net.cheney.cocktail.message.Request.Method;
 import net.cheney.cocktail.message.Response;
 import net.cheney.cocktail.message.Response.Status;
+import net.cheney.cocktail.resource.Elements.PROPSTAT;
+import net.cheney.snax.SNAX;
+import net.cheney.snax.model.Document;
+import net.cheney.snax.model.Element;
 import net.cheney.snax.model.QName;
+import net.cheney.snax.util.Predicate.Filter;
+import net.cheney.snax.writer.XMLWriter;
 
 public abstract class ApplicationResource extends Resource implements Application {
 	
@@ -290,21 +306,72 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 
 	private Application propfind(Environment env) {
 		Depth depth = Depth.parse(env.header(Header.DEPTH).getOnlyElementWithDefault(""), Depth.INFINITY);
-		return successMultiStatus(multistatus(propfind(ALL_PROPS, this, depth)));
+		try {
+			return successMultiStatus(multistatus(propfind(getProperties((ByteBuffer) env.body().flip()), this, depth)));
+		} catch (IllegalArgumentException e) {
+			return Responses.clientErrorBadRequest();
+		}
 	}
 
-	private List<Elements.RESPONSE> propfind(List<QName> searchProps, Resource resource, Depth depth) {
+	private List<Elements.RESPONSE> propfind(Iterable<QName> searchProps, Resource resource, Depth depth) {
 		final List<Elements.RESPONSE> responses = new ArrayList<Elements.RESPONSE>();
-//		
-//		responses.add(response(href(relativizeResource(resource)), getProperties(resource, properties)));
-//		if (depth != Depth.ZERO) {
-//			for (final Resource child : resource.members()) {
-//				responses.addAll(propfind(properties, child, depth.decreaseDepth()));
-//			}
-//		}
+		
+		responses.add(response(href(Path.create(resource.name())), getProperties(resource, searchProps)));
+		if (depth != Depth.ZERO) {
+			for (final Resource child : resource.children()) {
+				responses.addAll(propfind(searchProps, child, depth.decreaseDepth()));
+			}
+		}
 		return responses;
 	}
 
+	private final List<PROPSTAT> getProperties(final Resource resource, final Iterable<QName> properties) {
+		final List<PROPSTAT> propstats = new ArrayList<PROPSTAT>(2);
+		final List<Element> foundProps = new ArrayList<Element>();
+		final List<Element> notFoundProps = new ArrayList<Element>();
+		for (final QName property : properties) {
+			final Element prop = resource.property(property);
+			if(prop == null) {
+				notFoundProps.add(new Element(property));
+			} else {
+				foundProps.add(prop);
+			}
+		}
+		if(!foundProps.isEmpty()) {
+			propstats.add(propertyStatus(prop(foundProps), Status.SUCCESS_OK));
+		} 
+		if(!notFoundProps.isEmpty()) {
+			propstats.add(propertyStatus(prop(notFoundProps), Status.CLIENT_ERROR_NOT_FOUND));
+		}
+		return propstats;
+	}
+
+	private final Iterable<QName> getProperties(final ByteBuffer buffer) {
+		final Document doc = getPropfind(buffer);
+		final Element propfind = doc.rootElement();
+		if(propfind == null) {
+			throw new IllegalArgumentException();
+		}
+		final Element props = propfind.getChildren(Elements.PROP).first();
+		if (props == null || !props.hasChildren()) {
+			return ALL_PROPS;
+		} else {
+			return Iterables.transform(props.childElements(), new Function<Element, QName>() {
+				@Override
+				public QName apply(Element property) {
+					return property.qname();
+				}
+			});
+		}
+	}
+	
+	private final Document getPropfind(final ByteBuffer buffer) {
+		Document document = SNAX.parse(Charset.forName("UTF-8").decode(buffer));
+		LOG.debug("Request Body: "+XMLWriter.write(document));
+		return document;
+	}
+	
+	
 	protected Response options(Environment env) {
 		Response.Builder builder = Response.builder(Status.SUCCESS_NO_CONTENT);
 		

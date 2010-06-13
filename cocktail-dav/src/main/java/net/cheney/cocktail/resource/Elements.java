@@ -27,6 +27,7 @@ import java.util.TimeZone;
 
 import javax.activation.MimeType;
 
+import net.cheney.cocktail.application.Path;
 import net.cheney.cocktail.application.Environment.Depth;
 import net.cheney.cocktail.message.Response.Status;
 import net.cheney.cocktail.message.Version;
@@ -38,6 +39,7 @@ import net.cheney.snax.model.Node;
 import net.cheney.snax.model.QName;
 import net.cheney.snax.model.Text;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.FastDateFormat;
 
 public final class Elements {
@@ -141,14 +143,14 @@ public final class Elements {
 	
 	public static class HREF extends Element {
 
-		public HREF(URI uri) {
-			super(HREF, new Text(String.format("/%s", uri.toASCIIString())));
+		public HREF(Path path) {
+			super(HREF, new Text(String.format("/%s", StringUtils.join(path.iterator(), '/'))));
 		}
 		
 	}
 	
-	public static HREF href(URI uri) {
-		return new HREF(uri);
+	public static HREF href(Path path) {
+		return new HREF(path);
 	}
 
 	public static PROP prop(List<Element> elements) {
