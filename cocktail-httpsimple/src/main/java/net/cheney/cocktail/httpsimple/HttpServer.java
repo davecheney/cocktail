@@ -17,9 +17,13 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.log4j.Logger;
+
 import net.cheney.cocktail.application.Application;
 
 public class HttpServer {
+	
+	private static final Logger LOG = Logger.getLogger(HttpServer.class);
 
 	private final List<ServerSocketChannel> channels;
 	private final Application application;
@@ -35,7 +39,7 @@ public class HttpServer {
 
 	public void start(int nWorkers) throws InterruptedException, IOException {
 		ExecutorService executorService = Executors.newFixedThreadPool(nWorkers);
-		executorService.invokeAll(createWorkerTasks(nWorkers));
+		LOG.info("Started: "+executorService.invokeAll(createWorkerTasks(nWorkers)));
 	}
 
 	private Collection<? extends Callable<Void>> createWorkerTasks(int nWorkers) throws IOException {
@@ -98,24 +102,28 @@ public class HttpServer {
 			for(;;) {
 				Set<SelectionKey> keys = selectNow();
 				for(SelectionKey key : keys) {
-					switch(key.readyOps()) {
-					case SelectionKey.OP_ACCEPT:
-						SocketChannel sc = ((ServerSocketChannel)key.channel()).accept();
-						if(sc != null) {
-							sc.configureBlocking(false);
-							new HttpConnection(sc, selector, application);
+					if(key.isValid()) {
+						switch(key.readyOps()) {
+						case SelectionKey.OP_ACCEPT:
+							SocketChannel sc = ((ServerSocketChannel)key.channel()).accept();
+							if(sc != null) {
+								sc.configureBlocking(false);
+								new HttpConnection(sc, selector, application);
+							}
+							break;
+						
+						case SelectionKey.OP_READ:
+						case SelectionKey.OP_WRITE:
+						case SelectionKey.OP_READ|SelectionKey.OP_WRITE:
+							key.interestOps(0);
+							((HttpConnection)key.attachment()).onReadyOps(key.readyOps());
+							break;
+						
+						default:
+							throw new IllegalStateException();
 						}
-						break;
-						
-					case SelectionKey.OP_READ:
-					case SelectionKey.OP_WRITE:
-					case SelectionKey.OP_READ|SelectionKey.OP_WRITE:
-						key.interestOps(0);
-						((HttpConnection)key.attachment()).onReadyOps(key.readyOps());
-						break;
-						
-					default:
-						throw new IllegalStateException();
+					} else {
+						LOG.warn(key);
 					}
 				}
 				keys.clear();

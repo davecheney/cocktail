@@ -2,6 +2,7 @@ package net.cheney.cocktail.channelio;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ReadableByteChannel;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
@@ -17,7 +18,9 @@ public class ChannelReader {
 	}
 	
 	private ByteBuffer readSocket() throws IOException {
-		channel.read(buffer);
+		if(channel.read(buffer) < 0) {
+			throw new ClosedChannelException();
+		}
 		return (ByteBuffer) buffer.flip();
 	}
 	

@@ -44,7 +44,6 @@ import net.cheney.snax.SNAX;
 import net.cheney.snax.model.Document;
 import net.cheney.snax.model.Element;
 import net.cheney.snax.model.QName;
-import net.cheney.snax.util.Predicate.Filter;
 import net.cheney.snax.writer.XMLWriter;
 
 public abstract class ApplicationResource extends Resource implements Application {
@@ -64,6 +63,9 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 			
 		case PROPFIND:
 			return doPropfind(env);
+			
+		case PROPPATCH:
+			return doPropPatch(env);
 			
 		case MKCOL:
 			return mkcol(env);
@@ -94,6 +96,10 @@ public abstract class ApplicationResource extends Resource implements Applicatio
 		default:
 			return serverErrorNotImplemented().call(env);
 		}
+	}
+
+	private Response doPropPatch(Environment env) {
+		return doPropfind(env);
 	}
 
 	private Response copy(Environment env) throws IOException {

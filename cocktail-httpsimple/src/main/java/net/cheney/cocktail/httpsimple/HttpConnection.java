@@ -82,7 +82,16 @@ public class HttpConnection {
 				throw new IllegalStateException();
 			}
 		} catch (IOException e) {
-			panic(e);
+			close();
+		}
+	}
+
+	private void close() {
+		try {
+			sk.channel().close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
@@ -236,11 +245,13 @@ public class HttpConnection {
 	}
 
 	protected <T> T panic() {
+		try {
+			sk.channel().close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		throw new RuntimeException("PANIC: " + toString());
-	}
-
-	protected void panic(Throwable e) {
-		throw new RuntimeException("PANIC: " + toString(), e);
 	}
 
 	@Override
