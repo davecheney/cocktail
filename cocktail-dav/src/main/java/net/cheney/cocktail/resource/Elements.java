@@ -18,7 +18,6 @@
 
 package net.cheney.cocktail.resource;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
