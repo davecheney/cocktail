@@ -36,4 +36,14 @@ public class HeaderParserTest {
 		Iterable<String> actual = headers.header(Header.VIA);
 		Assert.assertTrue(Iterables.elementsEqual(expected, actual));
 	}
+	
+	@Test public void testEscapedHeader() {
+		String string = "Via: 1.0 fred, 1.1 \"APPLE1,1\" (Apache/1.1)\r\n\r\n";
+		HeaderParser parser = new HeaderParser();
+		Headers headers = parser.parse(string);
+		assertNotNull(headers);
+		Iterable<String> expected = Arrays.asList("1.0 fred", "1.1 \"APPLE1,1\" (Apache/1.1)");
+		Iterable<String> actual = headers.header(Header.VIA);
+		Assert.assertTrue(Iterables.elementsEqual(expected, actual));
+	}
 }

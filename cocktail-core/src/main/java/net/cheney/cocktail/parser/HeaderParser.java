@@ -17,7 +17,7 @@ import net.cheney.cocktail.message.Header;
 public class HeaderParser extends HttpParser<Headers> {
 
 	private enum State {
-		REQUEST_END, HEADER_KEY, HEADER_DELIMITER, HEADER_VALUE, HEADER_VALUE_END, WHITESPACE
+		REQUEST_END, HEADER_KEY, HEADER_DELIMITER, HEADER_VALUE, HEADER_VALUE_END, WHITESPACE, HEADER_VALUE_ESCAPED
 	}
 
 	private Deque<State> state = new ArrayDeque<HeaderParser.State>(3);
@@ -55,16 +55,29 @@ public class HeaderParser extends HttpParser<Headers> {
 
 			case HEADER_VALUE:
 				byte t = buffer.get();
-				if (isVisibleCharacter(t) || isWhitespace(t)) {
+				if (t == ',') {
+					int length = buffer.position() - offset;
+					String value = new String(buffer.array(), buffer.arrayOffset() + offset, --length, US_ASCII);
+					headers.header(header).add(value.trim());
+					offset = buffer.position();
+				} else if (t == '"') {
+					state.push(State.HEADER_VALUE_ESCAPED);
+				} else if (isVisibleCharacter(t) || isWhitespace(t)) {
 					continue;
 				} else if (t == '\r') {
-						int length = buffer.position() - offset;
-						String value = new String(buffer.array(), buffer.arrayOffset() + offset, --length, US_ASCII);
-						headers.header(header).add(value.trim());
+					int length = buffer.position() - offset;
+					String value = new String(buffer.array(), buffer.arrayOffset() + offset, --length, US_ASCII);
+					headers.header(header).add(value.trim());
 					offset = buffer.position();
 					state.pop();
 				} else {
 					throw new IllegalArgumentException(format("Illegal character '%x' in %s", t, state.peek()));
+				}
+				break;
+				
+			case HEADER_VALUE_ESCAPED:
+				if(buffer.get() == '"') {
+					state.pop();
 				}
 				break;
 
