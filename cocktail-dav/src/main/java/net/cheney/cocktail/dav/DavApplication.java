@@ -51,6 +51,9 @@ public class DavApplication implements Application {
 			
 		case GET:
 			return new Get(providor);
+			
+		case LOCK:
+			return new Lock(providor);
 		
 		default:
 			return serverErrorNotImplemented();

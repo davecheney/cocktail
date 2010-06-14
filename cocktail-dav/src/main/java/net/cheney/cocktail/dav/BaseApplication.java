@@ -22,7 +22,7 @@ import net.cheney.snax.writer.XMLWriter;
 
 public abstract class BaseApplication implements Application {
 	
-	private static final Charset CHARSET_UTF_8 = Charset.forName("UTF-8");
+	protected static final Charset CHARSET_UTF_8 = Charset.forName("UTF-8");
 	private final ResourceProvidor providor;
 
 	public BaseApplication(ResourceProvidor providor) {

@@ -2,11 +2,51 @@ package net.cheney.cocktail.resource;
 
 import java.util.UUID;
 
+import net.cheney.snax.model.Element;
+import net.cheney.snax.model.QName;
+
 public final class Lock {
 
-	public enum Scope {	NONE, SHARED, EXCLUSIVE }
+	public enum Scope {	
+		NONE, 
+		SHARED {
+			@Override
+			public Element toXML() {
+				return new Element(QName.valueOf(Elements.DAV_NAMESPACE, "shared"));
+			} 
+		},
+		EXCLUSIVE {
+			@Override
+			public Element toXML() {
+				return new Element(QName.valueOf(Elements.DAV_NAMESPACE, "exclusive"));
+			} 
+		};
+		
+		public Element toXML() {
+			return null;
+		}	
+	}
 	
-	public enum Type { NONE, READ, WRITE }
+	public enum Type { 
+		NONE, 
+		READ {
+			@Override
+			public Element toXML() {
+				return new Element(QName.valueOf(Elements.DAV_NAMESPACE, "read"));
+			} 
+		},
+		WRITE {
+			@Override
+			public Element toXML() {
+				return new Element(QName.valueOf(Elements.DAV_NAMESPACE, "write"));
+			} 
+		};
+
+		public Element toXML() {
+			return null;
+		}	 
+	
+	}
 	
 	private final Type type;
 	private final Scope scope;

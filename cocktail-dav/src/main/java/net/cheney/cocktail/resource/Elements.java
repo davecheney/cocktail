@@ -64,6 +64,7 @@ public final class Elements {
 		LOCK_TYPE = QName.valueOf(DAV_NAMESPACE, "locktype"),
 		LOCK_SCOPE = QName.valueOf(DAV_NAMESPACE, "lockscope"),
 		LOCK_ENTRY = QName.valueOf(DAV_NAMESPACE, "lockentry"),
+		LOCK_ROOT = QName.valueOf(DAV_NAMESPACE, "lockroot"),
 		STATUS = QName.valueOf(DAV_NAMESPACE, "status");
 	
 	public static final QName SET = QName.valueOf(DAV_NAMESPACE, "set"),
@@ -73,6 +74,7 @@ public final class Elements {
 		PROP = QName.valueOf(DAV_NAMESPACE, "prop"),
 		PROPSTAT = QName.valueOf(DAV_NAMESPACE, "propstat"),
 		LOCK_TOKEN = QName.valueOf(DAV_NAMESPACE, "locktoken"),
+		OWNER = QName.valueOf(DAV_NAMESPACE, "owner"),
 		HREF = QName.valueOf(DAV_NAMESPACE, "href");
 		
 	public static final QName EXCLUSIVE = QName.valueOf(DAV_NAMESPACE, "exclusive"), 
@@ -85,8 +87,7 @@ public final class Elements {
 	
 	static final RESOURCE_TYPE RESOURCE_TYPE_RESOURCE = new RESOURCE_TYPE();
 	static final RESOURCE_TYPE RESOURCE_TYPE_COLLECTION = new RESOURCE_TYPE(new Element(COLLECTION));
-	
-	
+
 	private Elements() { } // yagni
 	
 	/**
@@ -223,7 +224,7 @@ public final class Elements {
 	public static final class LOCK_DISCOVERY extends Element {
 
 		public LOCK_DISCOVERY(ACTIVE_LOCK... content) {
-			super(ACTIVE_LOCK, content);
+			super(LOCK_DISCOVERY, content);
 		}
 		
 	}
@@ -234,24 +235,25 @@ public final class Elements {
 
 	public static class ACTIVE_LOCK extends Element {
 
-		public ACTIVE_LOCK(LOCK_TYPE type, LOCK_SCOPE scope, DEPTH depth, LOCK_TOKEN token) {
-			super(ACTIVE_LOCK, type, scope, depth, token);
+		public ACTIVE_LOCK(LOCK_TYPE type, LOCK_SCOPE scope, DEPTH depth, LOCK_TOKEN token, LOCK_ROOT root) {
+			super(ACTIVE_LOCK, type, scope, depth, token, root);
 		}
 		
 	}
 	
-	public static ACTIVE_LOCK activeLock(Lock lock, Depth depth, URI uri) {
+	public static ACTIVE_LOCK activeLock(Lock lock, Depth depth, Path path) {
 		return new ACTIVE_LOCK(
 			locktype(lock.type()),
 			lockscope(lock.scope()),
 			depth(depth), 
-			lockToken(lock.token()));
+			lockToken(lock.token()),
+			lockRoot(href(path)));
 	}
 	
 	public static class LOCK_SCOPE extends Element {
 
 		public LOCK_SCOPE(Scope scope) {
-			super(LOCK_SCOPE, new Text(scope.toString()));
+			super(LOCK_SCOPE, scope.toXML());
 		}
 		
 	}
@@ -262,7 +264,7 @@ public final class Elements {
 
 	public static class LOCK_TYPE extends Element {
 		public LOCK_TYPE(Lock.Type type) {
-			super(LOCK_TYPE, new Text(type.toString()));
+			super(LOCK_TYPE, type.toXML());
 		}
 	}
 	
@@ -280,6 +282,18 @@ public final class Elements {
 	
 	private static LOCK_TOKEN lockToken(String token) {
 		return new LOCK_TOKEN(token);
+	}
+	
+	private static LOCK_ROOT lockRoot(HREF href) {
+		return new LOCK_ROOT(href);
+	}
+	
+	public static class LOCK_ROOT extends Element {
+
+		public LOCK_ROOT(HREF href) {
+			super(LOCK_ROOT, href);
+		}
+		
 	}
 
 	public static class DEPTH extends Element {
