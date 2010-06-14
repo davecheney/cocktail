@@ -29,7 +29,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 
-public class FileResource extends Resource {
+public class FileResource implements Resource {
 
 	private final File file;
 	private final FileResourceProvidor providor;

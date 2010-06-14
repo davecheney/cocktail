@@ -26,6 +26,10 @@ public class Put extends BaseApplication {
 			return clientErrorConflict();
 		}
 		
+		if(!env.hasBody()) {
+			return clientErrorBadRequest();
+		}
+		
 		try {
 			parent.create(resource.name(), (ByteBuffer) env.body().flip());
 			return successCreated();

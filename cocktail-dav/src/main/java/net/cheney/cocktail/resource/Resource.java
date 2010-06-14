@@ -8,26 +8,26 @@ import net.cheney.cocktail.message.Request.Method;
 import net.cheney.snax.model.Element;
 import net.cheney.snax.model.QName;
 
-public abstract class Resource implements Lockable, Getable, Deletable, CollectionResource, Moveable, Copyable {
+public interface Resource extends Lockable, Getable, Deletable, CollectionResource, Moveable, Copyable {
 	
-	public enum ComplianceClass { LEVEL_1, LEVEL_2 };
+	enum ComplianceClass { LEVEL_1, LEVEL_2 };
 
-	@Nonnull public abstract String name();
+	@Nonnull String name();
 	
-	public abstract boolean exists();
+	boolean exists();
 	
-	@Nonnull public abstract Collection<Method> supportedMethods();
+	@Nonnull Collection<Method> supportedMethods();
 
-	@Nonnull public abstract Collection<ComplianceClass> davOptions();
+	@Nonnull Collection<ComplianceClass> davOptions();
 	
-	@Nonnull public abstract Element property(QName name);
+	@Nonnull Element property(QName name);
 	
-	@Nonnull public abstract Iterable<Element> properties();
+	@Nonnull Iterable<Element> properties();
 	
-	@Nonnull public abstract Resource parent();
+	@Nonnull Resource parent();
 
-	@Nonnull public abstract boolean makeCollection(String name);
+	@Nonnull boolean makeCollection(String name);
 
-	@Nonnull public abstract boolean isCollection();
+	@Nonnull boolean isCollection();
 
 }
