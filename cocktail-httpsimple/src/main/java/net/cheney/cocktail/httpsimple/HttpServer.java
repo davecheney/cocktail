@@ -102,31 +102,35 @@ public class HttpServer {
 			for(;;) {
 				Set<SelectionKey> keys = selectNow();
 				for(SelectionKey key : keys) {
-					if(key.isValid()) {
-						switch(key.readyOps()) {
-						case SelectionKey.OP_ACCEPT:
-							SocketChannel sc = ((ServerSocketChannel)key.channel()).accept();
-							if(sc != null) {
-								sc.configureBlocking(false);
-								new HttpConnection(sc, selector, application);
-							}
-							break;
-						
-						case SelectionKey.OP_READ:
-						case SelectionKey.OP_WRITE:
-						case SelectionKey.OP_READ|SelectionKey.OP_WRITE:
-							key.interestOps(0);
-							((HttpConnection)key.attachment()).onReadyOps(key.readyOps());
-							break;
-						
-						default:
-							throw new IllegalStateException();
-						}
-					} else {
-						LOG.warn(key);
-					}
+					handleKey(key);
 				}
 				keys.clear();
+			}			
+		}
+
+		private void handleKey(SelectionKey key) throws IOException {
+			if(key.isValid()) {
+				switch(key.readyOps()) {
+				case SelectionKey.OP_ACCEPT:
+					SocketChannel sc = ((ServerSocketChannel)key.channel()).accept();
+					if(sc != null) {
+						sc.configureBlocking(false);
+						new HttpConnection(sc, selector, application);
+					}
+					break;
+				
+				case SelectionKey.OP_READ:
+				case SelectionKey.OP_WRITE:
+				case SelectionKey.OP_READ|SelectionKey.OP_WRITE:
+					key.interestOps(0);
+					((HttpConnection)key.attachment()).onReadyOps(key.readyOps());
+					break;
+				
+				default:
+					throw new IllegalStateException();
+				}
+			} else {
+				LOG.warn(key);
 			}			
 		}
 

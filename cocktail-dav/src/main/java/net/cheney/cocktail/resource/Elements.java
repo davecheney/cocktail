@@ -20,6 +20,7 @@ package net.cheney.cocktail.resource;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -42,6 +43,8 @@ import net.cheney.snax.model.Text;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.FastDateFormat;
 
+import com.google.common.collect.Iterables;
+
 public final class Elements {
 	
 	private static final FastDateFormat RFC1123_DATE_FORMAT = FastDateFormat.getInstance("EEE, dd MMM yyyy HH:mm:ss zzz", TimeZone.getTimeZone("GMT"), Locale.US);
@@ -62,6 +65,9 @@ public final class Elements {
 		LOCK_SCOPE = QName.valueOf(DAV_NAMESPACE, "lockscope"),
 		LOCK_ENTRY = QName.valueOf(DAV_NAMESPACE, "lockentry"),
 		STATUS = QName.valueOf(DAV_NAMESPACE, "status");
+	
+	public static final QName SET = QName.valueOf(DAV_NAMESPACE, "set"),
+		REMOVE = QName.valueOf(DAV_NAMESPACE, "remove");
 	
 	public static final QName MULTISTATUS = QName.valueOf(DAV_NAMESPACE, "multistatus"),
 		PROP = QName.valueOf(DAV_NAMESPACE, "prop"),
@@ -101,13 +107,17 @@ public final class Elements {
 
 	public static class MULTISTATUS extends Element {
 
-		public MULTISTATUS(List<RESPONSE> content) {
+		public MULTISTATUS(Iterable<RESPONSE> content) {
 			super(MULTISTATUS, content);
 		}
 		
 	}
 	
-	public static MULTISTATUS multistatus(List<RESPONSE> children) {
+	public static MULTISTATUS multistatus(RESPONSE... children) {
+		return new MULTISTATUS(Arrays.asList(children));
+	}
+	
+	public static MULTISTATUS multistatus(Iterable<RESPONSE> children) {
 		return new MULTISTATUS(children);
 	}
 	
@@ -190,20 +200,20 @@ public final class Elements {
 	 */
 	public static class RESPONSE extends Element {
 
-		public RESPONSE(HREF href, List<PROPSTAT> propstats) {
+		public RESPONSE(HREF href, Iterable<PROPSTAT> propstats) {
 			super(RESPONSE, nodes(href, propstats));
 		}
 
-		private static List<Node> nodes(HREF href, List<PROPSTAT> propstats) {
+		private static List<Node> nodes(HREF href, Iterable<PROPSTAT> propstats) {
 			ArrayList<Node> nodes = new ArrayList<Node>();
 			nodes.add(href);
-			nodes.addAll(propstats);
+			Iterables.addAll(nodes, propstats);
 			return nodes;
 		}
 		
 	}
 	
-	public static RESPONSE response(HREF href, List<PROPSTAT> propstats) {
+	public static RESPONSE response(HREF href, Iterable<PROPSTAT> propstats) {
 		return new RESPONSE(href, propstats);
 	}
 

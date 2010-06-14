@@ -9,6 +9,8 @@ import java.nio.charset.Charset;
 import net.cheney.cocktail.application.Application;
 import net.cheney.cocktail.application.Environment;
 import net.cheney.cocktail.application.Path;
+import net.cheney.cocktail.application.Environment.Depth;
+import net.cheney.cocktail.message.Header;
 import net.cheney.cocktail.message.Response;
 import net.cheney.cocktail.message.Response.Status;
 import net.cheney.cocktail.resource.Elements.MULTISTATUS;
@@ -33,6 +35,10 @@ public abstract class BaseApplication implements Application {
 
 	protected Resource resolveResource(Path path) {
 		return providor.resolveResource(path);
+	}
+	
+	protected Depth depth(Environment env) {
+		return Depth.parse(env.header(Header.DEPTH).getOnlyElementWithDefault(""), Depth.INFINITY);
 	}
 
 	public static Response serverErrorNotImplemented() {
@@ -86,7 +92,11 @@ public abstract class BaseApplication implements Application {
 	
 	protected Document bodyAsXML(Environment env) {
 		CharBuffer buffer = Charset.forName("UTF-8").decode((ByteBuffer) env.body().flip());
-		Document document = SNAX.parse(buffer);
-		return document;
+		try {
+			Document document = SNAX.parse(buffer);
+			return document;
+		} catch (IllegalArgumentException e) {
+			return null;
+		}
 	}
 }

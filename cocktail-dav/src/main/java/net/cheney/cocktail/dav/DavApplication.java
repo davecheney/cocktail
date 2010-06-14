@@ -31,8 +31,8 @@ public class DavApplication implements Application {
 		case PROPFIND:
 			return new Propfind(providor);
 			
-//		case PROPPATCH:
-//			return doPropPatch(env);
+		case PROPPATCH:
+			return new Proppatch(providor);
 			
 		case MKCOL:
 			return new Mkcol(providor);
