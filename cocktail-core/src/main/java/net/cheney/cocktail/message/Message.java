@@ -30,7 +30,10 @@ public abstract class Message {
 	}
 
 	public boolean closeRequested() {
-		return "close".equalsIgnoreCase(header(Header.CONNECTION).getOnlyElementWithDefault(""));
+		for(String value : header(Header.CONNECTION)) {
+			if(value.equalsIgnoreCase("close")) return true;
+		}
+		return false;
 	}
 	
 	public abstract Version version();
