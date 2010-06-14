@@ -30,6 +30,7 @@ public abstract class Message {
 	}
 
 	public boolean closeRequested() {
+		// TODO - what about HTTP/1.0
 		for(String value : header(Header.CONNECTION)) {
 			if(value.equalsIgnoreCase("close")) return true;
 		}

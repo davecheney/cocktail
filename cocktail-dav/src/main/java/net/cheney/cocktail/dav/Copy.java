@@ -23,7 +23,8 @@ public class Copy extends BaseApplication {
 	@Override
 	public Response call(Environment env) {
 		final Resource source = resolveResource(env);
-		final Resource destination = resolveResource(Path.fromURI(URI.create(env.header(Header.DESTINATION).getOnlyElement())));
+		
+		final Resource destination = resolveResource(Path.fromURI(destination(env)));
 		
 		if (destination.isLocked()) {
 			return clientErrorLocked();

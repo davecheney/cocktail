@@ -26,12 +26,12 @@ public class Put extends BaseApplication {
 			return clientErrorConflict();
 		}
 		
-		if(!env.hasBody()) {
-			return clientErrorBadRequest();
-		}
-		
 		try {
-			parent.create(resource.name(), (ByteBuffer) env.body().flip());
+			if(env.hasBody()) {
+				parent.create(resource.name(), (ByteBuffer) env.body().flip());
+			} else {
+				parent.create(resource.name(), ByteBuffer.allocate(0));
+			}
 			return successCreated();
 		} catch (IOException e) {
 			return serverErrorInternal(e);

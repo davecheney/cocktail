@@ -2,9 +2,12 @@ package net.cheney.cocktail.dav;
 
 import static net.cheney.snax.model.ProcessingInstruction.XML_DECLARATION;
 
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+
+import org.apache.commons.lang.StringUtils;
 
 import net.cheney.cocktail.application.Application;
 import net.cheney.cocktail.application.Environment;
@@ -39,6 +42,13 @@ public abstract class BaseApplication implements Application {
 	
 	protected Depth depth(Environment env) {
 		return Depth.parse(env.header(Header.DEPTH).getOnlyElementWithDefault(""), Depth.INFINITY);
+	}
+	
+	protected URI destination(Environment env) {
+		// TODO destination can contain "," 
+		// join it just in case
+		String dest = StringUtils.join(env.header(Header.DESTINATION).iterator(),',');
+		return URI.create(dest);
 	}
 
 	public static Response serverErrorNotImplemented() {
