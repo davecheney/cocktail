@@ -4,7 +4,6 @@ import java.io.File;
 import java.net.URI;
 
 import net.cheney.cocktail.application.Path;
-import net.cheney.cocktail.resource.ApplicationResource;
 import net.cheney.cocktail.resource.Lock;
 import net.cheney.cocktail.resource.LockManager;
 import net.cheney.cocktail.resource.Resource;
@@ -26,7 +25,7 @@ public class FileResourceProvidor implements ResourceProvidor {
 		this.lockManager = new FileResourceLockManager();
 	}
 	
-	public final ApplicationResource resolveResource(Path path) {
+	public final Resource resolveResource(Path path) {
 		return new FileResource(this, new File(root, path.toString()));
 	}
 	

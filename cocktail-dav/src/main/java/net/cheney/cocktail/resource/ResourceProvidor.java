@@ -6,7 +6,7 @@ import net.cheney.cocktail.application.Path;
 
 public interface ResourceProvidor extends LockManagerProvidor {
 
-	ApplicationResource resolveResource(Path path);
+	Resource resolveResource(Path path);
 
 	URI relativizeResource(Resource resource);
 	

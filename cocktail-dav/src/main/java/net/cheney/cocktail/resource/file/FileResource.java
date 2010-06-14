@@ -15,7 +15,6 @@ import java.util.Date;
 import java.util.List;
 
 import net.cheney.cocktail.message.Request.Method;
-import net.cheney.cocktail.resource.ApplicationResource;
 import net.cheney.cocktail.resource.CollectionResource;
 import net.cheney.cocktail.resource.Elements;
 import net.cheney.cocktail.resource.Property;
@@ -30,7 +29,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 
-public class FileResource extends ApplicationResource {
+public class FileResource extends Resource {
 
 	private final File file;
 	private final FileResourceProvidor providor;
@@ -75,21 +74,12 @@ public class FileResource extends ApplicationResource {
 		fc.close();
 	}
 
-	public boolean delete() {
-		return (isCollection() ? deleteDirectory() : deleteFile());
-	}
-
-	private boolean deleteDirectory() {
-		try {
+	public void delete() throws IOException {
+		if(isCollection()) {
 			FileUtils.deleteDirectory(file());
-			return true;
-		} catch (IOException e) {
-			return false;
+		} else {
+			file().delete();
 		}
-	}
-
-	private boolean deleteFile() {
-		return file().delete();
 	}
 
 	public boolean isCollection() {
@@ -211,7 +201,7 @@ public class FileResource extends ApplicationResource {
 		File f = new File(file, name);
 		FileOutputStream fos = new FileOutputStream(f);
 		FileChannel fc = fos.getChannel();
-		fc.write((ByteBuffer) buffer.flip());
+		fc.write((ByteBuffer) buffer);
 		fc.close();
 		return new FileResource(providor, f);
 	}

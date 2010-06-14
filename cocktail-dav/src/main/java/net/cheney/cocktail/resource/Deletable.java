@@ -1,6 +1,8 @@
 package net.cheney.cocktail.resource;
 
+import java.io.IOException;
+
 public interface Deletable {
 
-	boolean delete();
+	void delete() throws IOException;
 }

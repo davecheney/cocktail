@@ -2,7 +2,6 @@ package net.cheney.cocktail.dav;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import org.apache.log4j.BasicConfigurator;
@@ -24,6 +23,6 @@ public class Startup {
 		dav = new CommonLogger(dav, Logger.getRootLogger());
 		dav = new ResponseDebugger(dav, System.out);
 		
-		HttpServer.builder(dav).bind(new InetSocketAddress(InetAddress.getLocalHost(), 8080)).build().start(4);
+		HttpServer.builder(dav).bind(new InetSocketAddress(8080)).build().start(4);
 	}
 }
