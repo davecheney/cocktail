@@ -17,7 +17,8 @@ public class Put extends BaseApplication {
 	@Override
 	public Response call(Environment env) {
 		Resource resource = resolveResource(env);
-		if (resource.exists() && resource.isCollection()) {
+		boolean exists = resource.exists();
+		if (exists && resource.isCollection()) {
 			return clientErrorMethodNotAllowed();
 		}
 
@@ -32,7 +33,7 @@ public class Put extends BaseApplication {
 			} else {
 				parent.create(resource.name(), ByteBuffer.allocate(0));
 			}
-			return successCreated();
+			return exists ? successNoContent() : successCreated();
 		} catch (IOException e) {
 			return serverErrorInternal(e);
 		}

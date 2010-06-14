@@ -102,7 +102,12 @@ public class HttpServer {
 			for(;;) {
 				Set<SelectionKey> keys = selectNow();
 				for(SelectionKey key : keys) {
-					handleKey(key);
+					try {
+						handleKey(key);
+					} catch (IllegalArgumentException e) {
+						key.channel().close();
+						key.cancel();
+					}
 				}
 				keys.clear();
 			}			

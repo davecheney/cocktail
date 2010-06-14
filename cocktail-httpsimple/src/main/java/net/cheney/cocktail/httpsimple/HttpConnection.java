@@ -19,6 +19,7 @@ import net.cheney.cocktail.channelio.ChannelWriter;
 import net.cheney.cocktail.message.Header;
 import net.cheney.cocktail.message.Request;
 import net.cheney.cocktail.message.Response;
+import net.cheney.cocktail.message.Response.Status;
 import net.cheney.cocktail.parser.RequestParser;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
@@ -130,6 +131,7 @@ public class HttpConnection {
 			return ReadState.READ_REQUEST_LINE;
 		} else {
 			long contentLength = request.contentLength();
+			handleExpect();
 			if(contentLength > 0 ) {
 				request.setBody(ByteBuffer.allocate((int) contentLength));
 				return readBody();
@@ -166,6 +168,19 @@ public class HttpConnection {
 		return ReadState.READ_REQUEST_LINE;
 	}
 
+	// Expect: is stupid
+	private void handleExpect() throws IOException {
+		if(request.header(Header.EXPECT).any()) {
+			sendExpect();
+		}
+	}
+
+	private void sendExpect() throws IOException {
+		CharBuffer buffer = CharBuffer.allocate(8192);
+		buffer.append(format("HTTP/1.1 %s %s\r\n\r\n", Status.INFO_CONTINUE.code(), Status.INFO_CONTINUE.reason()));
+		write(US_ASCII.encode((CharBuffer) buffer.flip()));		
+	}
+
 	private boolean closeRequested(Request request, Response response) {
 		return request.closeRequested() ? true : response.closeRequested();
 	}
@@ -198,11 +213,9 @@ public class HttpConnection {
 		}
 	}
 
-	private final ByteBuffer buildHeaderBuffer(Response response,
-			boolean requestClose) throws IOException {
+	private final ByteBuffer buildHeaderBuffer(Response response, boolean requestClose) throws IOException {
 		CharBuffer buffer = CharBuffer.allocate(8192);
-		buffer.append(format("%s %s %s\r\n", response.version(), response
-				.status().code(), response.status().reason()));
+		buffer.append(format("%s %s %s\r\n", response.version(), response .status().code(), response.status().reason()));
 
 		// http://tools.ietf.org/html/draft-ietf-httpbis-p1-messaging-08#section-3.4
 		// elide Content-Length header where not permitted

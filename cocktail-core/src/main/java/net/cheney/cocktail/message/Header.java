@@ -146,6 +146,10 @@ public abstract class Header {
 		public String getOnlyElement() {
 			return Iterables.getOnlyElement(this);
 		}
+		
+		public boolean any() {
+			return get().size() > 0;
+		}
 
 		public String getOnlyElementWithDefault(String defaultValue) {
 			return Iterables.getOnlyElement(get(), defaultValue);
