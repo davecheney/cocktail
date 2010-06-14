@@ -17,6 +17,9 @@ import java.util.List;
 import net.cheney.cocktail.message.Request.Method;
 import net.cheney.cocktail.resource.CollectionResource;
 import net.cheney.cocktail.resource.Elements;
+import net.cheney.cocktail.resource.Lock;
+import net.cheney.cocktail.resource.Lock.Scope;
+import net.cheney.cocktail.resource.Lock.Type;
 import net.cheney.cocktail.resource.Property;
 import net.cheney.cocktail.resource.Resource;
 import net.cheney.snax.model.Element;
@@ -256,18 +259,6 @@ public class FileResource implements Resource {
 	}
 
 	@Override
-	public void lock() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void unlock() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public ByteBuffer body() throws IOException {
 		FileChannel channel = channel();
 		ByteBuffer buffer = channel.map(MapMode.READ_ONLY, 0, file.length());
@@ -278,6 +269,16 @@ public class FileResource implements Resource {
 	@Override
 	public String toString() {
 		return ReflectionToStringBuilder.toString(this, ToStringStyle.SIMPLE_STYLE);
+	}
+
+	@Override
+	public Lock lock(Type type, Scope scope) {
+		return providor.lockManager().lock(this, type, scope);
+	}
+	
+	@Override
+	public Lock unlock() {
+		return providor.lockManager().unlock(this);
 	}
 
 }

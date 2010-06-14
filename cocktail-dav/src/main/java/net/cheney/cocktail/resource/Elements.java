@@ -327,37 +327,4 @@ public final class Elements {
 		return new Element(COLLECTION);
 	}
 	
-	
-//	
-//	LockEntry(LockScope scope, LockType type) {
-//		super(LOCK_ENTRY, toXML(scope), toXML(type));
-//	}
-//
-//	private static Element toXML(LockScope scope) {
-//		switch (scope) {
-//		case EXCLUSIVE:
-//			return lockscope(scope).addContent(new Element(EXCLUSIVE));
-//
-//		case SHARED:
-//			return lockscope(scope).addContent(new Element(SHARED));
-//			
-//		case NONE:
-//		default:
-//			return lockscope(scope).addContent(new Element(NONE));
-//		}
-//	}
-//
-//	private static Element toXML(LockType type) {
-//		switch (type) {
-//		case READ:
-//			return locktype(type).addContent(new Element(new QName("read", DAV_NAMESPACE)));
-//
-//		case WRITE:
-//			return locktype(type).addContent(new Element(new QName("write", DAV_NAMESPACE)));
-//
-//		case NONE:
-//		default:
-//			return locktype(type).addContent(new Element(new QName("none", DAV_NAMESPACE)));
-//		}
-//	}
 }
