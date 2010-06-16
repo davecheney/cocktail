@@ -206,11 +206,6 @@ public abstract class Response extends Message implements Headers {
 		return new Response.Builder(status);
 	}
 	
-	@Override
-	public Headers headers() {
-		return this;
-	}
-
 	public static class Builder {
 
 		private final StatusCode status;
@@ -290,6 +285,11 @@ public abstract class Response extends Message implements Headers {
 				@Override
 				public Iterable<Header> keys() {
 					return headers.keySet();
+				}
+				
+				@Override
+				public Headers headers() {
+					return this;
 				}
 
 			};

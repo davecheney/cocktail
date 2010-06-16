@@ -132,7 +132,7 @@ public class RequestLineParser extends HttpParser<RequestLine> {
 	}
 
 	private RequestLine log(RequestLine requestLine) {
-		LOG.debug(requestLine);
+//		LOG.debug(requestLine);
 		return requestLine;
 	}
 	
