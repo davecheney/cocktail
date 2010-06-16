@@ -55,7 +55,7 @@ public class RequestParser extends HttpParser<Request> {
 		headerParser.reset();
 	}
 
-	public class Request extends net.cheney.cocktail.message.Request implements Environment {
+	public class Request extends net.cheney.cocktail.message.Request implements Environment, Headers {
 
 		private final RequestLine rl;
 		private final Headers h;
@@ -128,6 +128,11 @@ public class RequestParser extends HttpParser<Request> {
 		@Override
 		public Iterator<Accessor> iterator() {
 			return h.iterator();
+		}
+
+		@Override
+		public Headers headers() {
+			return this;
 		}
 	}
 }

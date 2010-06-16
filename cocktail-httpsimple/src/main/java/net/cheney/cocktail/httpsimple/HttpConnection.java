@@ -221,7 +221,7 @@ public class HttpConnection {
 					join(standardHeaders.get(header).iterator(), ',')));
 		}
 
-		for (Header.Accessor header : response) {
+		for (Header.Accessor header : response.headers()) {
 			buffer.append(format("%s: %s\r\n", header.header().name(),
 					join(header.iterator(), ',')));
 		}

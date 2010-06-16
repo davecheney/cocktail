@@ -29,7 +29,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 
-public abstract class Response extends Message {
+public abstract class Response extends Message implements Headers {
 
 	public interface StatusCode {
 
@@ -204,6 +204,11 @@ public abstract class Response extends Message {
 
 	public static Response.Builder builder(StatusCode status) {
 		return new Response.Builder(status);
+	}
+	
+	@Override
+	public Headers headers() {
+		return this;
 	}
 
 	public static class Builder {

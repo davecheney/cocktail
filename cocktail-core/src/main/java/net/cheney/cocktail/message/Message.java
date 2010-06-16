@@ -11,6 +11,8 @@ public abstract class Message implements Headers {
 		NONE,
 		IDENTITY
 	}
+	
+	public abstract Headers headers();
 
 	public abstract long contentLength() throws IOException;
 	

@@ -54,16 +54,10 @@ public interface Environment extends Headers {
 	@Nonnull Path path();
 	
 	@Nonnull Path contextPath();
-//	
-//	public Parameters params() {
-//		return params;
-//	}
-//	
-//	public <K> K param(Parameter<K> key) {
-//		return params.get(key);
-//	}
 	
 	@Nonnull ByteBuffer body();
+	
+	@Nonnull Headers headers();
 
 	boolean hasBody();
 }
