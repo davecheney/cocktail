@@ -13,7 +13,6 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 
 import net.cheney.cocktail.application.Application;
-import net.cheney.cocktail.application.Environment;
 import net.cheney.cocktail.channelio.ChannelReader;
 import net.cheney.cocktail.channelio.ChannelWriter;
 import net.cheney.cocktail.message.Header;
@@ -186,7 +185,6 @@ public class HttpConnection {
 	}
 
 	private void sendResponse(Response response, boolean closeRequested) throws IOException {
-		log(response);
 		ByteBuffer header = buildHeaderBuffer(response, closeRequested);
 		if (response.hasBody()) {
 			if (response.buffer() != null) {
@@ -197,10 +195,6 @@ public class HttpConnection {
 		} else {
 			write(header);
 		}
-	}
-
-	private void log(Response response) {
-		LOG.debug(format("%s %s: %s", response.version(), response.status(), response.headers()));
 	}
 
 	private void write(ByteBuffer header, FileChannel channel, long count) throws IOException {
@@ -215,25 +209,28 @@ public class HttpConnection {
 
 	private final ByteBuffer buildHeaderBuffer(Response response, boolean requestClose) throws IOException {
 		CharBuffer buffer = CharBuffer.allocate(8192);
-		buffer.append(format("%s %s %s\r\n", response.version(), response .status().code(), response.status().reason()));
+		buffer.append(responseLine(response));
 
 		// http://tools.ietf.org/html/draft-ietf-httpbis-p1-messaging-08#section-3.4
 		// elide Content-Length header where not permitted
 		// TODO: needs unit test
 
-		Multimap<Header, String> standardHeaders = createStandardHeaders(
-				response, requestClose);
+		Multimap<Header, String> standardHeaders = createStandardHeaders(response, requestClose);
 		for (Header header : standardHeaders.keySet()) {
 			buffer.append(format("%s: %s\r\n", header.name(),
 					join(standardHeaders.get(header).iterator(), ',')));
 		}
 
-		for (Header header : response.headers()) {
-			buffer.append(format("%s: %s\r\n", header.name(),
-					join(response.header(header).iterator(), ',')));
+		for (Header.Accessor header : response) {
+			buffer.append(format("%s: %s\r\n", header.header().name(),
+					join(header.iterator(), ',')));
 		}
 		buffer.append("\r\n");
 		return US_ASCII.encode((CharBuffer) buffer.flip());
+	}
+
+	private CharSequence responseLine(Response response) {
+		return format("%s %s %s\r\n", response.version(), response.status().code(), response.status().reason());
 	}
 
 	private Multimap<Header, String> createStandardHeaders(Response response, boolean requestClose) throws IOException {

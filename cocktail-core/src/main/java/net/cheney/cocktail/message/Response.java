@@ -14,17 +14,19 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.nio.charset.Charset;
 import java.util.Collection;
+import java.util.Iterator;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
 import net.cheney.cocktail.message.Header.Accessor;
-import net.cheney.cocktail.message.Response.Builder;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 
 public abstract class Response extends Message {
@@ -147,8 +149,7 @@ public abstract class Response extends Message {
 	}
 	
 	@Immutable
-	public
-	static class StatusLine extends Message.StartLine {
+	public static class StatusLine extends Message.StartLine {
 
 		private final StatusCode status;
 
@@ -175,81 +176,13 @@ public abstract class Response extends Message {
 		public int hashCode() {
 			return reflectionHashCode(this);
 		}
+		
 	}
 
 	public static Response successNoContent() {
 		return Response.builder(SUCCESS_NO_CONTENT).build();
 	}
 	
-//	public interface ResponseBuilder {
-//		Response build();
-//	}
-//	
-//	public interface EntityResponseBuilder extends ResponseBuilder {
-//		MimeTypedResponseBuilder entity(String s);
-//	}
-//	
-//	public interface MimeTypedResponseBuilder extends ResponseBuilder {
-//		ResponseBuilder type(Mime mime);
-//	}
-//	
-//	public static EntityResponseBuilder status(Status status) {
-//		class Builder implements EntityResponseBuilder, MimeTypedResponseBuilder {
-//
-//			private Status status;
-//			private String entity;
-//			private Mime mime;
-//
-//			public Builder(Status status) {
-//				this.status = status;
-//			}
-//
-//			@Override
-//			public Response build() {
-//				return new Response() {
-//
-//					@Override
-//					public Status status() {
-//						return status;
-//					}
-//
-//					@Override
-//					public HeaderAccessor header(Header header) {
-//						// TODO Auto-generated method stub
-//						return null;
-//					}
-//
-//					@Override
-//					public long contentLength() throws IOException {
-//						return entity.length();
-//					}
-//
-//					@Override
-//					public boolean hasBody() {
-//						// TODO Auto-generated method stub
-//						return false;
-//					}
-//					
-//				};
-//			}
-//
-//			@Override
-//			public MimeTypedResponseBuilder entity(String s) {
-//				this.entity = s;
-//				return this;
-//			}
-//
-//			@Override
-//			public ResponseBuilder type(Mime mime) {
-//				this.mime = mime;
-//				return this;
-//			}
-//			
-//		}
-//		
-//		return new Builder(status);
-//	}
-
 	public boolean hasBody() {
 		return body() != null;
 	}
@@ -272,7 +205,6 @@ public abstract class Response extends Message {
 	public static Response.Builder builder(StatusCode status) {
 		return new Response.Builder(status);
 	}
-
 
 	public static class Builder {
 
@@ -327,11 +259,6 @@ public abstract class Response extends Message {
 				}
 
 				@Override
-				public Iterable<Header> headers() {
-					return headers.keySet();
-				}
-
-				@Override
 				public Accessor header(Header header) {
 					return new HeaderAccessor(header);
 				}
@@ -346,6 +273,20 @@ public abstract class Response extends Message {
 					return buffer;
 				}
 				
+				@Override
+				public Iterator<Header.Accessor> iterator() {
+					return Iterables.transform(keys(), new Function<Header, Header.Accessor>() {
+						public Header.Accessor apply(Header header) {
+							return new HeaderAccessor(header);
+						};
+					}).iterator();
+				}
+
+				@Override
+				public Iterable<Header> keys() {
+					return headers.keySet();
+				}
+
 			};
 		}
 
@@ -386,4 +327,6 @@ public abstract class Response extends Message {
 			return body(Charset.defaultCharset().encode(string));
 		}
 	}
+
+
 }

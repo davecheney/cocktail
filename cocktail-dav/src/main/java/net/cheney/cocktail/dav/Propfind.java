@@ -1,5 +1,6 @@
 package net.cheney.cocktail.dav;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static net.cheney.cocktail.resource.Elements.href;
 import static net.cheney.cocktail.resource.Elements.multistatus;
 import static net.cheney.cocktail.resource.Elements.prop;
@@ -30,7 +31,7 @@ import com.google.common.collect.Lists;
 
 public class Propfind extends BaseApplication {
 	
-	private static final Iterable<QName> ALL_PROPS = Lists.newArrayList(
+	private static final Iterable<QName> ALL_PROPS = newArrayList(
 			Property.CREATION_DATE, Property.DISPLAY_NAME,
 			Property.GET_CONTENT_LENGTH, Property.GET_LAST_MODIFIED,
 			Property.RESOURCE_TYPE);
@@ -41,11 +42,9 @@ public class Propfind extends BaseApplication {
 
 	@Override
 	public Response call(Environment env) {
-		Depth depth = depth(env);
-		Resource resource = resolveResource(env);
 		try {
 			Iterable<QName> properties = getProperties(env);
-			List<RESPONSE> propfind = propfind(properties, resource, depth);
+			List<RESPONSE> propfind = propfind(properties, resolveResource(env), depth(env));
 			return successMultiStatus(multistatus(propfind));
 		} catch (IllegalArgumentException e) {
 			return clientErrorBadRequest();

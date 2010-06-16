@@ -5,6 +5,7 @@ import static junit.framework.Assert.assertNotNull;
 import java.util.Arrays;
 
 import net.cheney.cocktail.message.Header;
+import net.cheney.cocktail.message.Headers;
 
 import org.junit.Assert;
 import org.junit.Test;

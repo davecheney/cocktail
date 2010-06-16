@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Deque;
+import java.util.Iterator;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ArrayListMultimap;
@@ -13,6 +14,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 
 import net.cheney.cocktail.message.Header;
+import net.cheney.cocktail.message.Headers;
 
 public class HeaderParser extends HttpParser<Headers> {
 
@@ -137,7 +139,7 @@ public class HeaderParser extends HttpParser<Headers> {
 		state.push(State.HEADER_KEY);
 	}
 	
-	public static class Headers extends net.cheney.cocktail.parser.Headers {
+	public static class Headers implements net.cheney.cocktail.message.Headers {
 
 		private final Multimap<Header, String> headerMap = emptyMultiMap();
 		
@@ -170,18 +172,6 @@ public class HeaderParser extends HttpParser<Headers> {
 		}
 
 		@Override
-		public Iterable<Header.Accessor> headers() {
-			return Iterables.transform(headerMap.entries(), new Function<java.util.Map.Entry<Header, String>, Header.Accessor>() {
-
-				@Override
-				public Header.Accessor apply(java.util.Map.Entry<Header, String> entry) {
-					return new HeaderAccessor(entry.getKey());
-				}
-
-			});
-		}
-
-		@Override
 		public Iterable<Header> keys() {
 			return headerMap.keySet();
 		}
@@ -194,6 +184,18 @@ public class HeaderParser extends HttpParser<Headers> {
 		@Override
 		public String toString() {
 			return headerMap.toString();
+		}
+
+		@Override
+		public Iterator<Header.Accessor> iterator() {
+			return Iterables.transform(keys(), new Function<Header, Header.Accessor>() {
+
+				@Override
+				public Header.Accessor apply(Header header) {
+					return new HeaderAccessor(header);
+				}
+
+			}).iterator();
 		}
 		
 	}

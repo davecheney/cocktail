@@ -5,8 +5,13 @@ import java.nio.ByteBuffer;
 
 import javax.annotation.Nonnull;
 
-public abstract class Message {
+public abstract class Message implements Headers {
 	
+	public enum TransferEncoding {
+		NONE,
+		IDENTITY
+	}
+
 	public abstract long contentLength() throws IOException;
 	
 	abstract static class StartLine {
@@ -38,15 +43,6 @@ public abstract class Message {
 	}
 	
 	public abstract Version version();
-	
-	public abstract Iterable<Header> headers();
-	
-	public abstract Header.Accessor header(Header header);
-	
-	public enum TransferEncoding {
-		NONE,
-		IDENTITY
-	}
 	
 	public TransferEncoding transferCoding() {
 		return TransferEncoding.NONE;

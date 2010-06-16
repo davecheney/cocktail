@@ -3,6 +3,7 @@ package net.cheney.cocktail.parser;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.util.Iterator;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -10,6 +11,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import net.cheney.cocktail.application.Environment;
 import net.cheney.cocktail.application.Path;
 import net.cheney.cocktail.message.Header;
+import net.cheney.cocktail.message.Headers;
 import net.cheney.cocktail.message.Header.Accessor;
 import net.cheney.cocktail.message.Request;
 import net.cheney.cocktail.message.Request.RequestLine;
@@ -85,11 +87,6 @@ public class RequestParser extends HttpParser<Request> {
 		}
 
 		@Override
-		public Iterable<Header> headers() {
-			return h.keys();
-		}
-
-		@Override
 		public Accessor header(Header header) {
 			return h.header(header);
 		}
@@ -121,6 +118,16 @@ public class RequestParser extends HttpParser<Request> {
 		@Override
 		public String toString() {
 			return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+		}
+
+		@Override
+		public Iterable<Header> keys() {
+			return h.keys();
+		}
+
+		@Override
+		public Iterator<Accessor> iterator() {
+			return h.iterator();
 		}
 	}
 }

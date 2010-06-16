@@ -4,11 +4,11 @@ import java.nio.ByteBuffer;
 
 import javax.annotation.Nonnull;
 
-import net.cheney.cocktail.message.Header;
+import net.cheney.cocktail.message.Headers;
 import net.cheney.cocktail.message.Request;
 import net.cheney.cocktail.message.Version;
 
-public interface Environment {
+public interface Environment extends Headers {
 
 	public enum Depth { 
 		
@@ -50,8 +50,6 @@ public interface Environment {
 	@Nonnull Request.Method method();
 
 	@Nonnull Version version();
-
-	@Nonnull Header.Accessor header(Header header);
 
 	@Nonnull Path path();
 	
