@@ -43,15 +43,14 @@ public class Propfind extends BaseApplication {
 	@Override
 	public Response call(Environment env) {
 		try {
-			Iterable<QName> properties = getProperties(env);
-			List<RESPONSE> propfind = propfind(properties, resolveResource(env), depth(env));
+			List<RESPONSE> propfind = propfind(getSearchProperties(env), resolveResource(env), depth(env));
 			return successMultiStatus(multistatus(propfind));
 		} catch (IllegalArgumentException e) {
 			return clientErrorBadRequest();
 		}
 	}
 	
-	private final Iterable<QName> getProperties(final Environment env) {
+	private final Iterable<QName> getSearchProperties(final Environment env) {
 		final Document doc = bodyAsXML(env);
 		if(doc == null) {
 			throw new IllegalArgumentException();
@@ -76,7 +75,7 @@ public class Propfind extends BaseApplication {
 	private List<Elements.RESPONSE> propfind(Iterable<QName> searchProps, Resource resource, Depth depth) {
 		List<Elements.RESPONSE> responses = new ArrayList<Elements.RESPONSE>();
 		
-		responses.add(response(href(Path.create(resource.name())), getProperties(resource, searchProps)));
+		responses.add(response(href(resource), getProperties(resource, searchProps)));
 		if (depth != Depth.ZERO) {
 			for (final Resource child : resource.children()) {
 				responses.addAll(propfind(searchProps, child, depth.decreaseDepth()));

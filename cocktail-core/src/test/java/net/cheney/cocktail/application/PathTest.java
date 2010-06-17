@@ -32,4 +32,10 @@ public class PathTest {
 		Path actual = Path.fromURI(URI.create("http://localhost/child/child/"));
 		Assert.assertEquals(expected, actual);
 	}
+	
+	@Test public void testAppend() {
+		Path expected = Path.create("a", "b", "c", "d");
+		Path actual = Path.emptyPath().append("a").append("b").append("c").append("d");
+		Assert.assertEquals(expected, actual);
+	}
 }

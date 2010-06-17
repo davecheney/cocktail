@@ -56,4 +56,8 @@ public class FileResourceProvidor implements ResourceProvidor {
 		return root.toURI().relativize(((FileResource) resource).file().toURI());
 	}
 
+	public boolean isRoot(FileResource fileResource) {
+		return fileResource.file().equals(root);
+	}
+
 }

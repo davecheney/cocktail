@@ -4,10 +4,12 @@ import static org.apache.commons.lang.StringUtils.join;
 import static org.apache.commons.lang.StringUtils.split;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 
 public class Path implements Iterable<String> {
 
@@ -47,6 +49,12 @@ public class Path implements Iterable<String> {
 
 	public static Path create(String... string) {
 		return new Path(string);
+	}
+
+	public Path append(String name) {
+		ArrayList<String> l = Lists.newArrayList(parts);
+		l.add(name);
+		return new Path(l.toArray(new String[l.size()]));
 	}
 
 }

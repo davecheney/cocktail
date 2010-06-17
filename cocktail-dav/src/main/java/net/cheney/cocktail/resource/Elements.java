@@ -159,6 +159,19 @@ public final class Elements {
 		
 	}
 	
+	public static HREF href(Resource resource) {
+		Path p = resolvePath(resource);
+		return new HREF(p);
+	}
+	
+	private static Path resolvePath(Resource resource) {
+		if(resource.hasParent()) {
+			return resolvePath(resource.parent()).append(resource.name());
+		} else {
+			return Path.emptyPath();
+		}
+	}
+
 	public static HREF href(Path path) {
 		return new HREF(path);
 	}

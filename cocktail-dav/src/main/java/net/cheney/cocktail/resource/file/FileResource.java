@@ -281,4 +281,9 @@ public class FileResource implements Resource {
 		return providor.lockManager().unlock(this);
 	}
 
+	@Override
+	public boolean hasParent() {
+		return providor.isRoot(this);
+	}
+
 }

@@ -25,8 +25,10 @@ public interface Resource extends Lockable, Getable, Deletable, CollectionResour
 	@Nonnull Iterable<Element> properties();
 	
 	@Nonnull Resource parent();
+	
+	boolean hasParent();
 
-	@Nonnull boolean makeCollection(String name);
+	boolean makeCollection(String name);
 
 	@Nonnull boolean isCollection();
 
