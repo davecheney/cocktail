@@ -4,7 +4,11 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 
+import org.apache.log4j.Logger;
+
 public class BufferChannelWriter extends ChannelWriter {
+	
+	private static final Logger LOG = Logger.getLogger(BufferChannelWriter.class);
 
 	private final ByteBuffer buffer;
 
@@ -15,7 +19,8 @@ public class BufferChannelWriter extends ChannelWriter {
 
 	@Override
 	public ChannelWriter write() throws IOException {
-		channel.write(buffer);
+		int wrote = channel.write(buffer);
+		LOG.debug("Wrote "+wrote+": "+buffer.toString());
 		return super.write();
 	}
 
