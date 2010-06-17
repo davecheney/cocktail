@@ -11,11 +11,16 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.Collection;
+
+import javax.management.RuntimeErrorException;
 
 import net.cheney.cocktail.application.Application;
 import net.cheney.cocktail.channelio.ChannelReader;
 import net.cheney.cocktail.channelio.ChannelWriter;
 import net.cheney.cocktail.message.Header;
+import net.cheney.cocktail.message.Header.Accessor;
 import net.cheney.cocktail.message.Request;
 import net.cheney.cocktail.message.Response;
 import net.cheney.cocktail.message.Response.Status;
@@ -26,6 +31,8 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Multimap;
 
 public class HttpConnection {
@@ -215,13 +222,9 @@ public class HttpConnection {
 		// elide Content-Length header where not permitted
 		// TODO: needs unit test
 
-		Multimap<Header, String> standardHeaders = createStandardHeaders(response, requestClose);
-		for (Header header : standardHeaders.keySet()) {
-			buffer.append(format("%s: %s\r\n", header.name(),
-					join(standardHeaders.get(header).iterator(), ',')));
-		}
+		Iterable<Header.Accessor> standardHeaders = standardHeaders(response, requestClose);
 
-		for (Header.Accessor header : response.headers()) {
+		for (Header.Accessor header : Iterables.concat(standardHeaders, response.headers())) {
 			buffer.append(format("%s: %s\r\n", header.header().name(),
 					join(header.iterator(), ',')));
 		}
@@ -229,29 +232,62 @@ public class HttpConnection {
 		return US_ASCII.encode((CharBuffer) buffer.flip());
 	}
 
+	private Iterable<Header.Accessor> standardHeaders(final Response response, boolean requestClose) {
+		Header.Accessor date = new Header.Accessor() {
+			
+			@Override
+			public Header header() {
+				return Header.DATE;
+			}
+			
+			@Override
+			protected Collection<String> get() {
+				return Arrays.asList("Sun, 23 May 2010 10:02:46 GMT");
+			}
+		};
+		Header.Accessor connection = new Header.Accessor() {
+			
+			@Override
+			public Header header() {
+				return Header.CONNECTION;
+			}
+			
+			@Override
+			protected Collection<String> get() {
+				return Arrays.asList("close");
+			}
+		};
+		Header.Accessor contentLength = new Header.Accessor() {
+			
+			@Override
+			public Header header() {
+				return Header.CONTENT_LENGTH;
+			}
+			
+			@Override
+			protected Collection<String> get() {
+				if (response.hasBody()) {
+					return Arrays.asList(contentLength());
+				} else {
+					return Arrays.asList("0");
+				}
+			}
+
+			private String contentLength() {
+				try {
+					return Long.toString(response.contentLength());
+				} catch (IOException e) {
+					// COCK
+					throw new RuntimeException(e);
+				}
+			}
+		};
+		
+		return response.mayContainBody() ? Arrays.asList(date, connection, contentLength) : Arrays.asList(date, connection);
+	}
+
 	private CharSequence responseLine(Response response) {
 		return format("%s %s %s\r\n", response.version(), response.status().code(), response.status().reason());
-	}
-
-	private Multimap<Header, String> createStandardHeaders(Response response, boolean requestClose) throws IOException {
-		Multimap<Header, String> standardHeaders = emptyMultiMap();
-		standardHeaders.put(Header.DATE, "Sun, 23 May 2010 10:02:46 GMT");
-		if (response.mayContainBody()) {
-			if (response.hasBody()) {
-				standardHeaders.put(Header.CONTENT_LENGTH,
-						Long.toString(response.contentLength()));
-			} else {
-				standardHeaders.put(Header.CONTENT_LENGTH, "0");
-			}
-		}
-		if (requestClose) {
-			standardHeaders.put(Header.CONNECTION, "close");
-		}
-		return standardHeaders;
-	}
-
-	private Multimap<Header, String> emptyMultiMap() {
-		return ArrayListMultimap.create();
 	}
 
 	protected <T> T panic() {

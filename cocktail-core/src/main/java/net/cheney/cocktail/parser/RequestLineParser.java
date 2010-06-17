@@ -15,8 +15,6 @@ import net.cheney.cocktail.message.Version;
 
 public class RequestLineParser extends HttpParser<RequestLine> {
 	
-	private static final Logger LOG = Logger.getLogger(RequestLineParser.class);
-	
 	private enum State {
 		REQUEST_LINE_END, HTTP_VERSION, REQUEST_URI, METHOD
 	}
