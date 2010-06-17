@@ -35,7 +35,9 @@ public abstract class ChannelWriter {
 		return next != null;
 	}
 
-	public ChannelWriter write() throws IOException {
+	public abstract ChannelWriter write() throws IOException;
+	
+	protected ChannelWriter writeMore() throws IOException {
 		return (hasRemaning() || !hasNext()) ? this : next().write();
 	}
 	

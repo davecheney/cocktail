@@ -21,7 +21,7 @@ public class BufferChannelWriter extends ChannelWriter {
 	public ChannelWriter write() throws IOException {
 		int wrote = channel.write(buffer);
 		LOG.debug("Wrote "+wrote+": "+buffer.toString());
-		return super.write();
+		return writeMore();
 	}
 
 	@Override

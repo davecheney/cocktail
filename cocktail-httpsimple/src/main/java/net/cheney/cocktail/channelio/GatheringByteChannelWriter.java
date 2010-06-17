@@ -27,7 +27,7 @@ public class GatheringByteChannelWriter extends ChannelWriter {
 		long written = src.transferTo(position, count, channel);
 		position += written;
 		count -= written;
-		return super.write();
+		return writeMore();
 	}
 
 }
