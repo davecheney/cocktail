@@ -12,7 +12,6 @@ import java.util.List;
 
 import net.cheney.cocktail.application.Environment;
 import net.cheney.cocktail.application.Environment.Depth;
-import net.cheney.cocktail.application.Path;
 import net.cheney.cocktail.message.Response;
 import net.cheney.cocktail.message.Response.Status;
 import net.cheney.cocktail.resource.Elements;
@@ -27,7 +26,6 @@ import net.cheney.snax.model.QName;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 
 public class Propfind extends BaseApplication {
 	

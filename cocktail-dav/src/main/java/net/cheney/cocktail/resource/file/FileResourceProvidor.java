@@ -26,9 +26,13 @@ public class FileResourceProvidor implements ResourceProvidor {
 	}
 	
 	public final Resource resolveResource(Path path) {
-		return new FileResource(this, new File(root, path.toString()));
+		return new FileResource(this, fileForPath(path));
 	}
 	
+	private File fileForPath(Path path) {
+		return path.isEmpty() ? root : new File(root, path.toString());
+	}
+
 	public final LockManager lockManager() {
 		return lockManager;
 	}

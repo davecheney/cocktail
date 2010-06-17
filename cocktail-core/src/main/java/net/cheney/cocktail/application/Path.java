@@ -57,4 +57,8 @@ public class Path implements Iterable<String> {
 		return new Path(l.toArray(new String[l.size()]));
 	}
 
+	public boolean isEmpty() {
+		return parts.length == 0;
+	}
+
 }
