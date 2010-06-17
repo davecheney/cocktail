@@ -154,7 +154,7 @@ public final class Elements {
 	public static class HREF extends Element {
 
 		public HREF(Path path) {
-			super(HREF, new Text(StringUtils.join(path.iterator(), '/')));
+			super(HREF, new Text(path.toString()));
 		}
 		
 	}
