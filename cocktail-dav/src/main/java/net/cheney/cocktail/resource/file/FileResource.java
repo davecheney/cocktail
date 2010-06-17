@@ -283,7 +283,7 @@ public class FileResource implements Resource {
 
 	@Override
 	public boolean hasParent() {
-		return providor.isRoot(this);
+		return !providor.isRoot(this);
 	}
 
 }
