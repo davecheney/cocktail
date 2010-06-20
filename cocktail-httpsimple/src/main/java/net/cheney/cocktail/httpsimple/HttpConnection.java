@@ -200,12 +200,14 @@ public class HttpConnection {
 
 	private void write(ByteBuffer header, FileChannel channel, long count) throws IOException {
 		channelWriter = channelWriter.write(header).write(channel, count);
+		enableWriteInterest();
 	}
 
 	private void write(ByteBuffer... buffs) throws IOException {
 		for (ByteBuffer buffer : buffs) {
 			channelWriter = channelWriter.write(buffer);
 		}
+		enableWriteInterest();
 	}
 
 	private final ByteBuffer buildHeaderBuffer(Response response, boolean requestClose) throws IOException {
