@@ -127,7 +127,7 @@ public class HttpServer {
 				case SelectionKey.OP_READ:
 				case SelectionKey.OP_WRITE:
 				case SelectionKey.OP_READ|SelectionKey.OP_WRITE:
-					key.interestOps(0);
+					key.interestOps(key.interestOps() & (~key.readyOps()));
 					((HttpConnection)key.attachment()).onReadyOps(key.readyOps());
 					break;
 				

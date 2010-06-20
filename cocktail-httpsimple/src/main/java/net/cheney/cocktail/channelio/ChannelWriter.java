@@ -38,13 +38,13 @@ public abstract class ChannelWriter {
 	public abstract ChannelWriter write() throws IOException;
 	
 	protected ChannelWriter writeMore() throws IOException {
-		if (hasRemaning()) {
-			return this;
-		} else {
-			return hasNext() ? next().write() : this;
-		}
+		return hasRemaning() ? this : tryWriteNext();
 	}
 	
+	private ChannelWriter tryWriteNext() throws IOException {
+		return hasNext() ? next().write() : this;
+	}
+
 	public ChannelWriter write(FileChannel src, long count) throws IOException {
 		last().setNext(new GatheringByteChannelWriter(channel, src, count));
 		return write();

@@ -7,8 +7,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-import org.apache.log4j.Logger;
-
 import net.cheney.cocktail.message.Request.Method;
 import net.cheney.cocktail.message.Request.RequestLine;
 import net.cheney.cocktail.message.Version;
