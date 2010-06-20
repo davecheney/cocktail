@@ -1,5 +1,7 @@
 package net.cheney.cocktail.channelio;
 
+import static java.lang.String.format;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
@@ -20,7 +22,7 @@ public class BufferChannelWriter extends ChannelWriter {
 	@Override
 	public ChannelWriter write() throws IOException {
 		int wrote = channel.write(buffer);
-		LOG.debug("Wrote "+wrote+": "+buffer.toString());
+		LOG.debug(format("Wrote: %d, remaining: %d [%s]", wrote, buffer.remaining(), buffer.toString()));
 		return writeMore();
 	}
 
