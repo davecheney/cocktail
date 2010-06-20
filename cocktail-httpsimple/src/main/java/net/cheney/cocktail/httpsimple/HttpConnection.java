@@ -14,13 +14,10 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collection;
 
-import javax.management.RuntimeErrorException;
-
 import net.cheney.cocktail.application.Application;
 import net.cheney.cocktail.channelio.ChannelReader;
 import net.cheney.cocktail.channelio.ChannelWriter;
 import net.cheney.cocktail.message.Header;
-import net.cheney.cocktail.message.Header.Accessor;
 import net.cheney.cocktail.message.Request;
 import net.cheney.cocktail.message.Response;
 import net.cheney.cocktail.message.Response.Status;
@@ -30,10 +27,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Multimap;
 
 public class HttpConnection {
 	
