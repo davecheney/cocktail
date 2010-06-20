@@ -15,7 +15,7 @@ public abstract class ChannelWriter {
 	}
 
 	public static ChannelWriter forChannel(WritableByteChannel channel) {
-		return new BufferChannelWriter(channel, ByteBuffer.allocate(0));
+		return new NullChannelWriter(channel);
 	}
 	
 	protected ChannelWriter next() {
