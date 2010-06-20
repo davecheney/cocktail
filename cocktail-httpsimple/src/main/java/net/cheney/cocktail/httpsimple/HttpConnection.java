@@ -98,9 +98,7 @@ public class HttpConnection {
 
 	private void doWrite() throws IOException {
 		channelWriter = channelWriter.write();
-		if (channelWriter.hasRemaning()) {
-			enableWriteInterest();
-		}
+		enableWriteInterestIfThereIsMoreToWrite();
 	}
 
 	private void enableWriteInterest() {
@@ -127,11 +125,10 @@ public class HttpConnection {
 	private ReadState readRequestLine() throws IOException {
 		request = requestParser.parse(channelReader.read());
 		if (request == null) {
-			enableReadInterest();
-			return ReadState.READ_REQUEST_LINE;
+			return enableReadInterest(ReadState.READ_REQUEST_LINE);
 		} else {
-			long contentLength = request.contentLength();
 			handleExpect();
+			long contentLength = request.contentLength();
 			if(contentLength > 0 ) {
 				request.setBody(ByteBuffer.allocate((int) contentLength));
 				return readBody();
@@ -200,18 +197,20 @@ public class HttpConnection {
 
 	private void write(ByteBuffer header, FileChannel channel, long count) throws IOException {
 		channelWriter = channelWriter.write(header).write(channel, count);
+		enableWriteInterestIfThereIsMoreToWrite();
+	}
+
+	private void enableWriteInterestIfThereIsMoreToWrite() {
 		if (channelWriter.hasRemaning()) {
 			enableWriteInterest();
-		}
+		}		
 	}
 
 	private void write(ByteBuffer... buffs) throws IOException {
 		for (ByteBuffer buffer : buffs) {
 			channelWriter = channelWriter.write(buffer);
 		}
-		if (channelWriter.hasRemaning()) {
-			enableWriteInterest();
-		}
+		enableWriteInterestIfThereIsMoreToWrite();
 	}
 
 	private final ByteBuffer buildHeaderBuffer(Response response, boolean requestClose) throws IOException {

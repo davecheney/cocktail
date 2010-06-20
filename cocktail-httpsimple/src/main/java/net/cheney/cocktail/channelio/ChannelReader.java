@@ -23,7 +23,7 @@ public class ChannelReader {
 	}
 	
 	private ByteBuffer readSocket() throws IOException {
-		int read = channel.read(buffer);
+		int read = channel.read(buffer.compact());
 		if(read < 0) {
 			throw new ClosedChannelException();
 		}
@@ -33,12 +33,7 @@ public class ChannelReader {
 	}
 	
 	public ByteBuffer read() throws IOException {
-		if(buffer.hasRemaining()) {
-			return buffer;
-		} else {
-			buffer.compact();
-			return readSocket();
-		}
+		return buffer.hasRemaining() ? buffer : readSocket();
 	}
 	
 	@Override
