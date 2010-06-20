@@ -27,10 +27,19 @@ public abstract class ChannelWriter {
 	}
 	
 	public ChannelWriter write(ByteBuffer buffer) throws IOException {
-		last().setNext(new BufferChannelWriter(channel, buffer));
-		return write();
+		return write(new BufferChannelWriter(channel, buffer));
 	}
 	
+	private ChannelWriter write(ChannelWriter next) throws IOException {
+		ChannelWriter last = last();
+		if(last.hasRemaning()) {
+			last.setNext(next);
+			return write();
+		} else {
+			return next.write();
+		}
+	}
+
 	protected boolean hasNext() {
 		return next != null;
 	}
@@ -46,8 +55,7 @@ public abstract class ChannelWriter {
 	}
 
 	public ChannelWriter write(FileChannel src, long count) throws IOException {
-		last().setNext(new GatheringByteChannelWriter(channel, src, count));
-		return write();
+		return write(new GatheringByteChannelWriter(channel, src, count));
 	}
 
 	private ChannelWriter last() {

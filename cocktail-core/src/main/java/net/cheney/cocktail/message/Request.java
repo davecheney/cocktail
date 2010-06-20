@@ -1,5 +1,6 @@
 package net.cheney.cocktail.message;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -94,4 +95,11 @@ public abstract class Request extends Message {
 
 	public abstract URI uri();
 	
+	public boolean mayHaveBody() {
+		try {
+			return contentLength() > 0;
+		} catch (IOException e) {
+			return false;
+		}
+	}
 }

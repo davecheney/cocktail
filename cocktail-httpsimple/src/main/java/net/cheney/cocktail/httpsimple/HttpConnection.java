@@ -128,8 +128,8 @@ public class HttpConnection {
 			return enableReadInterest(ReadState.READ_REQUEST_LINE);
 		} else {
 			handleExpect();
-			long contentLength = request.contentLength();
-			if(contentLength > 0 ) {
+			if(request.mayHaveBody()) {
+				long contentLength = request.contentLength();
 				request.setBody(ByteBuffer.allocate((int) contentLength));
 				return readBody();
 			} else {
@@ -152,17 +152,16 @@ public class HttpConnection {
 		return request.body().hasRemaining() ? enableReadInterest(ReadState.READ_BODY) : handleRequest();
 	}
 
-	private ReadState enableReadInterest(ReadState s) {
+	private ReadState enableReadInterest(ReadState state) {
 		enableReadInterest();
-		return s;
+		return state;
 	}
 
 	private ReadState handleRequest() throws IOException {
 		Response response = application.call(request);
 		sendResponse(response, closeRequested(request, response));
 		reset();
-		enableReadInterest();
-		return ReadState.READ_REQUEST_LINE;
+		return enableReadInterest(ReadState.READ_REQUEST_LINE);
 	}
 
 	// Expect: is stupid
