@@ -38,7 +38,11 @@ public abstract class ChannelWriter {
 	public abstract ChannelWriter write() throws IOException;
 	
 	protected ChannelWriter writeMore() throws IOException {
-		return (hasRemaning() || !hasNext()) ? this : next().write();
+		if (hasRemaning()) {
+			return this;
+		} else {
+			return hasNext() ? next().write() : this;
+		}
 	}
 	
 	public ChannelWriter write(FileChannel src, long count) throws IOException {
