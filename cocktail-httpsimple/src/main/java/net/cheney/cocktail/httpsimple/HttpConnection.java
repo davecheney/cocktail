@@ -53,8 +53,8 @@ public class HttpConnection implements ReadyOperationHandler {
 	public HttpConnection(SocketChannel sc, Selector selector,
 			Application application) throws IOException {
 		this.channel = new ChannelRegistration(selector, sc, SelectionKey.OP_READ, this);
-		this.channelReader = new ChannelReader(sc);
-		this.channelWriter = ChannelWriter.forChannel(sc);
+		this.channelReader = channel.reader(); 
+		this.channelWriter = channel.writer();
 		this.application = application;
 		reset();
 	}

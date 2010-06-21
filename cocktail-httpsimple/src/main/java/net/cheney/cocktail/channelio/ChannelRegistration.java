@@ -1,7 +1,6 @@
 package net.cheney.cocktail.channelio;
 
 import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
@@ -11,9 +10,13 @@ import net.cheney.cocktail.httpsimple.ReadyOperationHandler;
 public class ChannelRegistration {
 
 	private final SelectionKey key;
+	private final ChannelReader reader;
+	private final ChannelWriter writer;
 
-	public ChannelRegistration(Selector selector, SocketChannel sc, int interstOps, ReadyOperationHandler handler) throws ClosedChannelException {
+	public ChannelRegistration(Selector selector, SocketChannel sc, int interstOps, ReadyOperationHandler handler) throws IOException {
 		key = sc.register(selector, SelectionKey.OP_READ, handler);
+		reader = new ChannelReader(sc);
+		writer = ChannelWriter.forChannel(sc);
 	}
 
 	public void close() {
@@ -36,6 +39,14 @@ public class ChannelRegistration {
 	
 	public void enableWriteInterest() {
 		enableInterest(SelectionKey.OP_WRITE);
+	}
+
+	public ChannelReader reader() {
+		return reader;
+	}
+
+	public ChannelWriter writer() {
+		return writer;
 	}
 
 }
