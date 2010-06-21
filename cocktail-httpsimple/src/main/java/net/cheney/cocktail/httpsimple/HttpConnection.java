@@ -205,10 +205,13 @@ public class HttpConnection {
 		}		
 	}
 
-	private void write(ByteBuffer... buffs) throws IOException {
-		for (ByteBuffer buffer : buffs) {
-			channelWriter = channelWriter.write(buffer);
-		}
+	private void write(ByteBuffer buffer) throws IOException {
+		channelWriter = channelWriter.write(buffer);
+		enableWriteInterestIfThereIsMoreToWrite();
+	}
+	
+	private void write(ByteBuffer header, ByteBuffer body) throws IOException {
+		channelWriter = channelWriter.write(header, body);
 		enableWriteInterestIfThereIsMoreToWrite();
 	}
 

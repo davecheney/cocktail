@@ -1,11 +1,11 @@
 package net.cheney.cocktail.channelio;
 
 import java.io.IOException;
-import java.nio.channels.WritableByteChannel;
+import java.nio.channels.GatheringByteChannel;
 
 public class NullChannelWriter extends ChannelWriter {
 
-	protected NullChannelWriter(WritableByteChannel channel) {
+	protected NullChannelWriter(GatheringByteChannel channel) {
 		super(channel);
 	}
 

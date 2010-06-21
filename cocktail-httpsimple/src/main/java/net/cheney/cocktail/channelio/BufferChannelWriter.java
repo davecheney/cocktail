@@ -4,7 +4,7 @@ import static java.lang.String.format;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.WritableByteChannel;
+import java.nio.channels.GatheringByteChannel;
 
 import org.apache.log4j.Logger;
 
@@ -14,7 +14,7 @@ public class BufferChannelWriter extends ChannelWriter {
 
 	private final ByteBuffer buffer;
 
-	public BufferChannelWriter(WritableByteChannel channel, ByteBuffer buffer) {
+	public BufferChannelWriter(GatheringByteChannel channel, ByteBuffer buffer) {
 		super(channel);
 		this.buffer = buffer;
 	}

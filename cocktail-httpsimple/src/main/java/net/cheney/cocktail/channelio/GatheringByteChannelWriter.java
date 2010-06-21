@@ -2,7 +2,7 @@ package net.cheney.cocktail.channelio;
 
 import java.io.IOException;
 import java.nio.channels.FileChannel;
-import java.nio.channels.WritableByteChannel;
+import java.nio.channels.GatheringByteChannel;
 
 public class GatheringByteChannelWriter extends ChannelWriter {
 
@@ -10,7 +10,7 @@ public class GatheringByteChannelWriter extends ChannelWriter {
 	private int position;
 	private long count;
 
-	public GatheringByteChannelWriter(WritableByteChannel dest, FileChannel src, long count) {
+	public GatheringByteChannelWriter(GatheringByteChannel dest, FileChannel src, long count) {
 		super(dest);
 		this.src = src;
 		this.position = 0;

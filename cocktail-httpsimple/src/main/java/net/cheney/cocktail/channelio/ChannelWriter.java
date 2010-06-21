@@ -3,18 +3,18 @@ package net.cheney.cocktail.channelio;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.channels.WritableByteChannel;
+import java.nio.channels.GatheringByteChannel;
 
 public abstract class ChannelWriter {
 	
 	private ChannelWriter next;
-	protected final WritableByteChannel channel;
+	protected final GatheringByteChannel channel;
 
-	protected ChannelWriter(WritableByteChannel channel) {
+	protected ChannelWriter(GatheringByteChannel channel) {
 		this.channel = channel;
 	}
 
-	public static ChannelWriter forChannel(WritableByteChannel channel) {
+	public static ChannelWriter forChannel(GatheringByteChannel channel) {
 		return new NullChannelWriter(channel);
 	}
 	
@@ -30,6 +30,10 @@ public abstract class ChannelWriter {
 		return write(new BufferChannelWriter(channel, buffer));
 	}
 	
+	public ChannelWriter write(ByteBuffer header, ByteBuffer body) throws IOException {
+		return write(new BufferVChannelWriter(channel, header, body));
+	}
+		
 	private ChannelWriter write(ChannelWriter next) throws IOException {
 		ChannelWriter last = last();
 		if(last.hasRemaning()) {
