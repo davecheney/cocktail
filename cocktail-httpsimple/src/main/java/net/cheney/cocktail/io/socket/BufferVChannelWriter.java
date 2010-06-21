@@ -1,4 +1,4 @@
-package net.cheney.cocktail.channelio;
+package net.cheney.cocktail.io.socket;
 
 import static java.lang.String.format;
 
@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.GatheringByteChannel;
 import java.util.Arrays;
+
+import net.cheney.cocktail.io.Channel;
 
 import org.apache.log4j.Logger;
 

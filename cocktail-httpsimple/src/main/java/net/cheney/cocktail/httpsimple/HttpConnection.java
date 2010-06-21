@@ -15,8 +15,8 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import net.cheney.cocktail.application.Application;
-import net.cheney.cocktail.channelio.Channel;
-import net.cheney.cocktail.channelio.ReadyOperationHandler;
+import net.cheney.cocktail.io.Channel;
+import net.cheney.cocktail.io.ReadyOperationHandler;
 import net.cheney.cocktail.message.Header;
 import net.cheney.cocktail.message.Request;
 import net.cheney.cocktail.message.Response;

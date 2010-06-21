@@ -1,4 +1,4 @@
-package net.cheney.cocktail.channelio;
+package net.cheney.cocktail.io;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -7,6 +7,11 @@ import java.nio.channels.GatheringByteChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+
+import net.cheney.cocktail.io.socket.BufferChannelWriter;
+import net.cheney.cocktail.io.socket.BufferVChannelWriter;
+import net.cheney.cocktail.io.socket.SocketChannelReader;
+import net.cheney.cocktail.io.socket.GatheringByteChannelWriter;
 
 
 public class Channel {
@@ -43,7 +48,7 @@ public class Channel {
 		}
 
 		public Channel.Reader reader() throws IOException {
-			return new ChannelReader(channel());
+			return new SocketChannelReader(channel());
 		}
 
 		private SocketChannel channel() {

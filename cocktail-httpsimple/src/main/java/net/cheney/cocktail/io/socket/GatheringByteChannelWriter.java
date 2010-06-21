@@ -1,8 +1,10 @@
-package net.cheney.cocktail.channelio;
+package net.cheney.cocktail.io.socket;
 
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.GatheringByteChannel;
+
+import net.cheney.cocktail.io.Channel;
 
 public class GatheringByteChannelWriter extends Channel.Writer {
 

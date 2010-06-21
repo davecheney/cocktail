@@ -1,4 +1,4 @@
-package net.cheney.cocktail.channelio;
+package net.cheney.cocktail.io;
 
 public interface ReadyOperationHandler {
 
