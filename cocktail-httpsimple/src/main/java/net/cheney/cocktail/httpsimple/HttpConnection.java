@@ -46,13 +46,13 @@ public class HttpConnection implements ReadyOperationHandler {
 	private final Channel.Registration channel;
 	private final Application application;
 	private Channel.Reader reader;
-	private Channel.Writer channelWriter;
+	private Channel.Writer writer;
 	private RequestParser.Request request;
 
 	public HttpConnection(SocketChannel sc, Selector selector, Application application) throws IOException {
 		this.channel = Channel.register(selector, sc, SelectionKey.OP_READ, this);
 		this.reader = channel.reader(); 
-		this.channelWriter = channel.writer();
+		this.writer = channel.writer();
 		this.application = application;
 		reset();
 	}
@@ -92,7 +92,7 @@ public class HttpConnection implements ReadyOperationHandler {
 	}
 
 	private void doWrite() throws IOException {
-		channelWriter = channelWriter.write();
+		writer = writer.write();
 		enableWriteInterestIfThereIsMoreToWrite();
 	}
 
@@ -178,23 +178,23 @@ public class HttpConnection implements ReadyOperationHandler {
 	}
 
 	private void write(ByteBuffer header, FileChannel channel, long count) throws IOException {
-		channelWriter = channelWriter.write(header).write(channel, count);
+		writer = writer.write(header).write(channel, count);
 		enableWriteInterestIfThereIsMoreToWrite();
 	}
 
 	private void enableWriteInterestIfThereIsMoreToWrite() {
-		if (channelWriter.hasRemaning()) {
+		if (writer.hasRemaning()) {
 			channel.enableWriteInterest();
 		}		
 	}
 
 	private void write(ByteBuffer buffer) throws IOException {
-		channelWriter = channelWriter.write(buffer);
+		writer = writer.write(buffer);
 		enableWriteInterestIfThereIsMoreToWrite();
 	}
 	
 	private void write(ByteBuffer header, ByteBuffer body) throws IOException {
-		channelWriter = channelWriter.write(header, body);
+		writer = writer.write(header, body);
 		enableWriteInterestIfThereIsMoreToWrite();
 	}
 
