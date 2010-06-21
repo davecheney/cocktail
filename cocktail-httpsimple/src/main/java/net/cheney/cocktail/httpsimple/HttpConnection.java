@@ -15,9 +15,8 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import net.cheney.cocktail.application.Application;
-import net.cheney.cocktail.channelio.ChannelReader;
-import net.cheney.cocktail.channelio.ChannelRegistration;
-import net.cheney.cocktail.channelio.ChannelWriter;
+import net.cheney.cocktail.channelio.Channel;
+import net.cheney.cocktail.channelio.ReadyOperationHandler;
 import net.cheney.cocktail.message.Header;
 import net.cheney.cocktail.message.Request;
 import net.cheney.cocktail.message.Response;
@@ -44,16 +43,15 @@ public class HttpConnection implements ReadyOperationHandler {
 
 	private RequestParser requestParser;
 
-	private final ChannelRegistration channel;
+	private final Channel.Registration channel;
 	private final Application application;
-	private ChannelReader channelReader;
-	private ChannelWriter channelWriter;
+	private Channel.Reader reader;
+	private Channel.Writer channelWriter;
 	private RequestParser.Request request;
 
-	public HttpConnection(SocketChannel sc, Selector selector,
-			Application application) throws IOException {
-		this.channel = new ChannelRegistration(selector, sc, SelectionKey.OP_READ, this);
-		this.channelReader = channel.reader(); 
+	public HttpConnection(SocketChannel sc, Selector selector, Application application) throws IOException {
+		this.channel = Channel.register(selector, sc, SelectionKey.OP_READ, this);
+		this.reader = channel.reader(); 
 		this.channelWriter = channel.writer();
 		this.application = application;
 		reset();
@@ -116,7 +114,7 @@ public class HttpConnection implements ReadyOperationHandler {
 	}
 
 	private ReadState readRequestLine() throws IOException {
-		request = requestParser.parse(channelReader.read());
+		request = requestParser.parse(reader.read());
 		if (request == null) {
 			return enableReadInterest(ReadState.READ_REQUEST_LINE);
 		} else {
@@ -133,7 +131,7 @@ public class HttpConnection implements ReadyOperationHandler {
 
 	private ReadState readBody() throws IOException {
 		LOG.debug("readBody: "+request.body());
-		request.body().put(channelReader.read());
+		request.body().put(reader.read());
 		return request.body().hasRemaining() ? enableReadInterest(ReadState.READ_BODY) : handleRequest();
 	}
 

@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 
-public class BufferVChannelWriter extends ChannelWriter {
+public class BufferVChannelWriter extends Channel.Writer {
 	
 	private static final Logger LOG = Logger.getLogger(BufferVChannelWriter.class);
 
@@ -25,7 +25,7 @@ public class BufferVChannelWriter extends ChannelWriter {
 	}
 
 	@Override
-	public ChannelWriter write() throws IOException {
+	public Channel.Writer write() throws IOException {
 		LOG.debug(format("Writing: offset: %d, length: %d, %s", offset, length, Arrays.toString(buffs)));
 		long wrote = channel.write(buffs, offset, length - offset);
 		for( ; offset < length ; ++offset) {

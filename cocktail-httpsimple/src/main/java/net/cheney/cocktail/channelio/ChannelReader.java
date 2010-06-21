@@ -11,7 +11,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 
-public class ChannelReader {
+public class ChannelReader extends Channel.Reader {
 	
 	private static final Logger LOG = Logger.getLogger(ChannelReader.class);
 
@@ -32,6 +32,7 @@ public class ChannelReader {
 		return buffer;
 	}
 	
+	@Override
 	public ByteBuffer read() throws IOException {
 		return buffer.hasRemaining() ? buffer : readSocket();
 	}

@@ -12,7 +12,7 @@ public class ChainedChannelWriterTest {
 	@Test public void testChannelWriter() throws IOException {
 		ByteBuffer dest = ByteBuffer.allocate(8192);
 		MockWritableByteChannel channel = new MockWritableByteChannel(dest);
-		ChannelWriter w = ChannelWriter.forChannel(channel);
+		Channel.Writer w = Channel.Writer.forChannel(channel);
 		ByteBuffer a = ByteBuffer.wrap(new byte[] { (byte)1, (byte)2,(byte) 3,(byte) 4 });
 		w = w.write(a);
 		assertEquals(dest.remaining(), 8192 - a.capacity());

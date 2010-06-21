@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.GatheringByteChannel;
 
-public class GatheringByteChannelWriter extends ChannelWriter {
+public class GatheringByteChannelWriter extends Channel.Writer {
 
 	private final FileChannel src;
 	private int position;
@@ -23,7 +23,7 @@ public class GatheringByteChannelWriter extends ChannelWriter {
 	}
 	
 	@Override
-	public ChannelWriter write() throws IOException {
+	public Channel.Writer write() throws IOException {
 		long written = src.transferTo(position, count, channel);
 		position += written;
 		count -= written;
