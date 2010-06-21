@@ -16,7 +16,6 @@ import java.util.Collection;
 
 import net.cheney.cocktail.application.Application;
 import net.cheney.cocktail.io.Channel;
-import net.cheney.cocktail.io.ReadyOperationHandler;
 import net.cheney.cocktail.message.Header;
 import net.cheney.cocktail.message.Request;
 import net.cheney.cocktail.message.Response;
@@ -29,7 +28,7 @@ import org.apache.log4j.Logger;
 
 import com.google.common.collect.Iterables;
 
-public class HttpConnection implements ReadyOperationHandler {
+public class HttpConnection implements Channel.Registration.Handler {
 	
 	private static final Logger LOG = Logger.getLogger(HttpConnection.class);
 

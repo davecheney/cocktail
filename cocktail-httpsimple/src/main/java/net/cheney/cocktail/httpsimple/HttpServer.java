@@ -21,7 +21,7 @@ import java.util.concurrent.Executors;
 import org.apache.log4j.Logger;
 
 import net.cheney.cocktail.application.Application;
-import net.cheney.cocktail.io.ReadyOperationHandler;
+import net.cheney.cocktail.io.Channel.Registration;
 
 public class HttpServer {
 	
@@ -134,7 +134,7 @@ public class HttpServer {
 				case SelectionKey.OP_WRITE:
 				case SelectionKey.OP_READ|SelectionKey.OP_WRITE:
 					key.interestOps(key.interestOps() & (~key.readyOps()));
-					((ReadyOperationHandler)key.attachment()).onReadyOps(key.readyOps());
+					((Registration.Handler)key.attachment()).onReadyOps(key.readyOps());
 					break;
 				
 				default:

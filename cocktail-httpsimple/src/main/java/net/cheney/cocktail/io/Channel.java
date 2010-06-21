@@ -16,15 +16,21 @@ import net.cheney.cocktail.io.socket.GatheringByteChannelWriter;
 
 public class Channel {
 	
-	public static Channel.Registration register(Selector selector, SocketChannel sc, int interstOps, ReadyOperationHandler handler) throws IOException {
+	public static Channel.Registration register(Selector selector, SocketChannel sc, int interstOps, Registration.Handler handler) throws IOException {
 		return new Registration(selector, sc, interstOps, handler);
 	}
 
 	public static class Registration {
+		
+		public interface Handler {
+
+			void onReadyOps(int readyOps);
+
+		}
 
 		private final SelectionKey key;
 
-		private Registration(Selector selector, SocketChannel sc, int interstOps, ReadyOperationHandler handler) throws IOException {
+		private Registration(Selector selector, SocketChannel sc, int interstOps, Registration.Handler handler) throws IOException {
 			key = sc.register(selector, SelectionKey.OP_READ, handler);
 		}
 
