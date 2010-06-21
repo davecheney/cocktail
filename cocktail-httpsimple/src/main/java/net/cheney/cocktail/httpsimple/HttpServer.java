@@ -1,6 +1,7 @@
 package net.cheney.cocktail.httpsimple;
 
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.SocketAddress;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
@@ -65,7 +66,10 @@ public class HttpServer {
 
 		public Builder bind(SocketAddress address) throws IOException {
 			ServerSocketChannel ssc = SelectorProvider.provider().openServerSocketChannel();
-			ssc.socket().bind(address);
+			ServerSocket socket = ssc.socket();
+//			socket.setReceiveBufferSize(65536);
+			socket.setReuseAddress(true);
+			socket.bind(address);
 			ssc.configureBlocking(false);
 			this.addresses.add(ssc);
 			return this;
@@ -120,6 +124,7 @@ public class HttpServer {
 					SocketChannel sc = ((ServerSocketChannel)key.channel()).accept();
 					if(sc != null) {
 						sc.configureBlocking(false);
+						sc.socket().setSendBufferSize(65536);
 						new HttpConnection(sc, selector, application);
 					}
 					break;
