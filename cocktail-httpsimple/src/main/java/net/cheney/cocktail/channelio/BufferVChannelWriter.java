@@ -26,18 +26,18 @@ public class BufferVChannelWriter extends ChannelWriter {
 	@Override
 	public ChannelWriter write() throws IOException {
 		long wrote = channel.write(buffs, offset, length);
-		for(int n = buffs.length; offset < n ; ++offset) {
-			if(!buffs[offset].hasRemaining()) 
+		for(int n = buffs.length - 1; offset < n ; ++offset) {
+			if(buffs[offset].hasRemaining()) 
 				break;
 		}
-		length -= offset;
+		length = length - offset;
 		LOG.debug(format("Wrote: %d, remaining: %d, offset: %d, length: %d", wrote, buffs[offset].remaining(), offset, length));
 		return writeMore();
 	}
 
 	@Override
 	public boolean hasRemaning() {
-		return buffs[offset + length - 1].hasRemaining();
+		return buffs[offset].hasRemaining();
 	}
 
 }
