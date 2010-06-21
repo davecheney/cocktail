@@ -16,6 +16,7 @@ import java.util.Collection;
 
 import net.cheney.cocktail.application.Application;
 import net.cheney.cocktail.channelio.ChannelReader;
+import net.cheney.cocktail.channelio.ChannelRegistration;
 import net.cheney.cocktail.channelio.ChannelWriter;
 import net.cheney.cocktail.message.Header;
 import net.cheney.cocktail.message.Request;
@@ -29,7 +30,7 @@ import org.apache.log4j.Logger;
 
 import com.google.common.collect.Iterables;
 
-public class HttpConnection {
+public class HttpConnection implements ReadyOperationHandler {
 	
 	private static final Logger LOG = Logger.getLogger(HttpConnection.class);
 
@@ -43,7 +44,7 @@ public class HttpConnection {
 
 	private RequestParser requestParser;
 
-	private final SelectionKey sk;
+	private final ChannelRegistration channel;
 	private final Application application;
 	private ChannelReader channelReader;
 	private ChannelWriter channelWriter;
@@ -51,7 +52,7 @@ public class HttpConnection {
 
 	public HttpConnection(SocketChannel sc, Selector selector,
 			Application application) throws IOException {
-		this.sk = sc.register(selector, SelectionKey.OP_READ, this);
+		this.channel = new ChannelRegistration(selector, sc, SelectionKey.OP_READ, this);
 		this.channelReader = new ChannelReader(sc);
 		this.channelWriter = ChannelWriter.forChannel(sc);
 		this.application = application;
@@ -63,6 +64,7 @@ public class HttpConnection {
 		this.requestParser = new RequestParser();
 	}
 
+	@Override
 	public void onReadyOps(int readyOps) {
 		try {
 			switch (readyOps) {
@@ -88,21 +90,12 @@ public class HttpConnection {
 	}
 
 	private void close() {
-		try {
-			sk.channel().close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		channel.close();
 	}
 
 	private void doWrite() throws IOException {
 		channelWriter = channelWriter.write();
 		enableWriteInterestIfThereIsMoreToWrite();
-	}
-
-	private void enableWriteInterest() {
-		enableInterest(SelectionKey.OP_WRITE);
 	}
 
 	private void doRead() throws IOException {
@@ -138,14 +131,6 @@ public class HttpConnection {
 		}
 	}
 
-	private void enableReadInterest() {
-		enableInterest(SelectionKey.OP_READ);
-	}
-
-	private void enableInterest(int ops) {
-		sk.interestOps(sk.interestOps() | ops);
-	}
-
 	private ReadState readBody() throws IOException {
 		LOG.debug("readBody: "+request.body());
 		request.body().put(channelReader.read());
@@ -153,7 +138,7 @@ public class HttpConnection {
 	}
 
 	private ReadState enableReadInterest(ReadState state) {
-		enableReadInterest();
+		channel.enableReadInterest();
 		return state;
 	}
 
@@ -201,7 +186,7 @@ public class HttpConnection {
 
 	private void enableWriteInterestIfThereIsMoreToWrite() {
 		if (channelWriter.hasRemaning()) {
-			enableWriteInterest();
+			channel.enableWriteInterest();
 		}		
 	}
 
@@ -292,12 +277,7 @@ public class HttpConnection {
 	}
 
 	protected <T> T panic() {
-		try {
-			sk.channel().close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		close();
 		throw new RuntimeException("PANIC: " + toString());
 	}
 
