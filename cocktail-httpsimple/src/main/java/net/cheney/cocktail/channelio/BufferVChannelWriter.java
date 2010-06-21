@@ -5,6 +5,7 @@ import static java.lang.String.format;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.GatheringByteChannel;
+import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 
@@ -25,19 +26,24 @@ public class BufferVChannelWriter extends ChannelWriter {
 
 	@Override
 	public ChannelWriter write() throws IOException {
-		long wrote = channel.write(buffs, offset, length);
-		for(int n = buffs.length - 1; offset < n ; ++offset) {
-			if(buffs[offset].hasRemaining()) 
+		LOG.debug(format("Writing: offset: %d, length: %d, %s", offset, length, Arrays.toString(buffs)));
+		long wrote = channel.write(buffs, offset, length - offset);
+		for( ; offset < length ; ++offset) {
+			if(buffs[offset].hasRemaining()) {
 				break;
+			} 
 		}
-		length = length - offset;
-		LOG.debug(format("Wrote: %d, remaining: %d, offset: %d, length: %d", wrote, buffs[offset].remaining(), offset, length));
+		LOG.debug(format("Wrote: %d, remaining: %d, %s", wrote, buffs[lastIndex()].remaining(), Arrays.toString(buffs)));
 		return writeMore();
 	}
 
 	@Override
 	public boolean hasRemaning() {
-		return buffs[offset].hasRemaining();
+		return buffs[lastIndex()].hasRemaining();
 	}
-
+	
+	private int lastIndex() {
+		return Math.min(offset, length - 1);
+	}
+	
 }
