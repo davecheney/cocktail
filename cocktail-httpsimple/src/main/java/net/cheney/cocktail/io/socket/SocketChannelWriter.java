@@ -10,13 +10,13 @@ import net.cheney.cocktail.io.Channel;
 
 import org.apache.log4j.Logger;
 
-public class BufferChannelWriter extends Channel.Writer {
+public class SocketChannelWriter extends Channel.Writer {
 	
-	private static final Logger LOG = Logger.getLogger(BufferChannelWriter.class);
+	private static final Logger LOG = Logger.getLogger(SocketChannelWriter.class);
 
 	private final ByteBuffer buffer;
 
-	public BufferChannelWriter(GatheringByteChannel channel, ByteBuffer buffer) {
+	public SocketChannelWriter(GatheringByteChannel channel, ByteBuffer buffer) {
 		super(channel);
 		this.buffer = buffer;
 	}

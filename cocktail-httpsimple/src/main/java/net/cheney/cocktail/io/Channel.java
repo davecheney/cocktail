@@ -4,23 +4,22 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.GatheringByteChannel;
-import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
-import net.cheney.cocktail.io.socket.BufferChannelWriter;
+import net.cheney.cocktail.io.socket.SocketChannelWriter;
 import net.cheney.cocktail.io.socket.BufferVChannelWriter;
-import net.cheney.cocktail.io.socket.SocketChannelReader;
 import net.cheney.cocktail.io.socket.GatheringByteChannelWriter;
+import net.cheney.cocktail.io.socket.SocketChannelRegistration;
 
 
 public class Channel {
 	
 	public static Channel.Registration register(Selector selector, SocketChannel sc, int interstOps, Registration.Handler handler) throws IOException {
-		return new Registration(selector, sc, interstOps, handler);
+		return new SocketChannelRegistration(selector, sc, interstOps, handler);
 	}
 
-	public static class Registration {
+	public interface Registration {
 		
 		public interface Handler {
 
@@ -28,43 +27,15 @@ public class Channel {
 
 		}
 
-		private final SelectionKey key;
+		void close();
 
-		private Registration(Selector selector, SocketChannel sc, int interstOps, Registration.Handler handler) throws IOException {
-			key = sc.register(selector, SelectionKey.OP_READ, handler);
-		}
+		void enableReadInterest();
 
-		public void close() {
-			try {
-				key.channel().close();
-				key.cancel();
-			} catch (IOException ignored) { }
-		}
+		void enableWriteInterest();
 
-		private void enableInterest(int ops) {
-			key.interestOps(key.interestOps() | ops);
-		}
-		
-		public void enableReadInterest() {
-			enableInterest(SelectionKey.OP_READ);
-		}
-		
-		public void enableWriteInterest() {
-			enableInterest(SelectionKey.OP_WRITE);
-		}
+		Reader reader() throws IOException;
 
-		public Channel.Reader reader() throws IOException {
-			return new SocketChannelReader(channel());
-		}
-
-		private SocketChannel channel() {
-			return (SocketChannel) key.channel();
-		}
-
-		public Channel.Writer writer() {
-			return 	Channel.Writer.forChannel(channel());
-		}
-
+		Writer writer();
 	}
 	
 	public abstract static class Reader {
@@ -82,8 +53,8 @@ public class Channel {
 			this.channel = channel;
 		}
 
-		public static Channel.Writer forChannel(GatheringByteChannel channel) {
-			return new NullChannelWriter(channel);
+		public static Channel.Writer forChannel(SocketChannel channel) {
+			return new SocketChannelWriter(channel, ByteBuffer.allocate(0));
 		}
 		
 		protected Channel.Writer next() {
@@ -95,7 +66,7 @@ public class Channel {
 		}
 		
 		public Channel.Writer write(ByteBuffer buffer) throws IOException {
-			return write(new BufferChannelWriter(channel, buffer));
+			return write(new SocketChannelWriter(channel, buffer));
 		}
 		
 		public Channel.Writer write(ByteBuffer header, ByteBuffer body) throws IOException {
