@@ -7,7 +7,7 @@ import java.util.List;
 public class ChunkedRequestParser extends HttpParser<ByteBuffer> {
 	
 	private enum State {
-		CHUNK_SIZE, CHUNK_EXTENSION, CHUNK_DATA, LAST_CHUNK, CHUNK_DATA_TRAILER
+		CHUNK_SIZE, CHUNK_EXTENSION, CHUNK_DATA, CHUNK_DATA_TRAILER, TRAILER
 	}
 	
 	private State state = State.CHUNK_SIZE;
@@ -61,17 +61,20 @@ public class ChunkedRequestParser extends HttpParser<ByteBuffer> {
 					// valid char for CHUNK method
 					continue;
 					
+				case ' ':
+					// some implementations pad 0x20 between the chunk_size and the \r\n
+					continue;
+					
 				case ';':
 					int length = buffer.position() - offset;
 					String s = new String(buffer.array(), buffer.arrayOffset() + offset, --length, US_ASCII);
-					int chunksize = Integer.parseInt(s, 16);
+					int chunksize = Integer.parseInt(s.trim(), 16);
 					offset = buffer.position();
 					if(chunksize > 0) {
 						this.chunk = allocateChunk(chunksize);
 						state = State.CHUNK_EXTENSION;
 					} else {
-						offset = buffer.position();
-						return chunkData();
+						state = State.TRAILER;
 					}
 					continue;
 					
@@ -81,19 +84,29 @@ public class ChunkedRequestParser extends HttpParser<ByteBuffer> {
 				case '\n':
 					int l = buffer.position() - offset -1; // why ?
 					String s2 = new String(buffer.array(), buffer.arrayOffset() + offset , --l, US_ASCII);
-					int chunksize2 = Integer.parseInt(s2, 16);
+					int chunksize2 = Integer.parseInt(s2.trim(), 16);
 					offset = buffer.position();
 					if(chunksize2 > 0) {
 						this.chunk = allocateChunk(chunksize2);
 						state = State.CHUNK_DATA;
 					} else {
-						offset = buffer.position();
-						return chunkData();
+						state = State.TRAILER;
 					}
 					break;
 					
 				default:
-					throw new IllegalArgumentException("State: "+state+" data: "+(char)d);
+					throw new IllegalArgumentException("State: "+state+" data: ["+(char)d+"]");
+				}
+				break;
+				
+			case TRAILER:
+				switch (buffer.get()) {
+				case '\r':
+					continue;
+					
+				case '\n':
+					offset = buffer.position();
+					return chunkData();
 				}
 				break;
 				
@@ -133,7 +146,7 @@ public class ChunkedRequestParser extends HttpParser<ByteBuffer> {
 					break;
 					
 				default:
-					throw new IllegalArgumentException("State: "+state+" data: "+(char)c);
+					throw new IllegalArgumentException("State: "+state+" data: ["+(char)c);
 				}
 				break;
 				
