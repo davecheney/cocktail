@@ -159,6 +159,10 @@ public abstract class Header {
 		public String toString() {
 			return String.format("%s=%s", header().name(), get());
 		}
+
+		public boolean contains(String string) {
+			return Iterables.contains(this, string);
+		}
 		
 	}
 }

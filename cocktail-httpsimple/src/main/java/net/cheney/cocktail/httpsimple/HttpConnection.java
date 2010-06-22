@@ -20,6 +20,8 @@ import net.cheney.cocktail.message.Header;
 import net.cheney.cocktail.message.Request;
 import net.cheney.cocktail.message.Response;
 import net.cheney.cocktail.message.Response.Status;
+import net.cheney.cocktail.parser.ChunkedRequestParser;
+import net.cheney.cocktail.parser.HttpParser;
 import net.cheney.cocktail.parser.RequestParser;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
@@ -33,7 +35,7 @@ public class HttpConnection implements Channel.Registration.Handler {
 	private static final Logger LOG = Logger.getLogger(HttpConnection.class);
 
 	enum ReadState {
-		READ_REQUEST_LINE, READ_BODY, PANIC
+		READ_REQUEST_LINE, READ_BODY, PANIC, READ_CHUNKED_BODY
 	}
 
 	private static final Charset US_ASCII = Charset.forName("US-ASCII");
@@ -47,6 +49,7 @@ public class HttpConnection implements Channel.Registration.Handler {
 	private Channel.Reader reader;
 	private Channel.Writer writer;
 	private RequestParser.Request request;
+	private HttpParser<ByteBuffer> bodyReader = null;
 
 	public HttpConnection(SocketChannel sc, Selector selector, Application application) throws IOException {
 		this.channel = Channel.register(selector, sc, SelectionKey.OP_READ, this);
@@ -106,6 +109,9 @@ public class HttpConnection implements Channel.Registration.Handler {
 
 		case READ_BODY:
 			return readBody();
+			
+		case READ_CHUNKED_BODY:
+			return readChunkedBody();
 		
 		default:
 			return panic();
@@ -118,13 +124,26 @@ public class HttpConnection implements Channel.Registration.Handler {
 			return enableReadInterest(ReadState.READ_REQUEST_LINE);
 		} else {
 			handleExpect();
-			if(request.mayHaveBody()) {
+			if(request.header(Header.TRANSFER_ENCODING).contains("chunked")) {
+				bodyReader = new ChunkedRequestParser();
+				return readChunkedBody();
+			} else if(request.mayHaveBody()) {
 				long contentLength = request.contentLength();
 				request.setBody(ByteBuffer.allocate((int) contentLength));
 				return readBody();
 			} else {
 				return handleRequest();
 			}
+		}
+	}
+
+	private ReadState readChunkedBody() throws IOException {
+		ByteBuffer body = bodyReader.parse(reader.read());
+		if(body == null) {
+			return enableReadInterest(ReadState.READ_CHUNKED_BODY);
+		} else {
+			request.setBody(body);
+			return handleRequest();
 		}
 	}
 

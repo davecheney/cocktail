@@ -321,6 +321,10 @@ public abstract class Response extends Message implements Headers {
 				headers.get(key).add(value);
 				return this;
 			}
+
+			public void set(Iterable<String> values) {
+				Iterables.addAll(headers.get(key), values);
+			}
 		}
 
 		public Builder body(ByteBuffer buffer) {
