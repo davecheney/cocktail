@@ -5,11 +5,13 @@ import java.nio.charset.Charset;
 
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ChunkedRequestParserTest {
 
 	// http://www.jmarshall.com/easy/http/#http1.1c2
+	@Ignore
 	@Test public void testChunkedRequestParser() {
 		ChunkedRequestParser parser = new ChunkedRequestParser();
 		String data = 

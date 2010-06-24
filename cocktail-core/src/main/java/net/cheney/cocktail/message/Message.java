@@ -3,8 +3,6 @@ package net.cheney.cocktail.message;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import javax.annotation.Nonnull;
-
 public abstract class Message implements Headers {
 	
 	public enum TransferEncoding {
@@ -12,30 +10,10 @@ public abstract class Message implements Headers {
 		IDENTITY
 	}
 	
-	public abstract Headers headers();
-
-	public abstract long contentLength() throws IOException;
-	
-	abstract static class StartLine {
-
-		private final Version version;
-
-		StartLine(@Nonnull Version version) {
-			this.version = version;
-		}
-		
-		public final Version version() {
-			return this.version;
-		}
-		
-		@Override
-		public abstract int hashCode();
-		
-		@Override
-		public abstract boolean equals(Object obj);
-
+	public long contentLength() throws IOException {
+		return hasBody() ? body().remaining() : 0;
 	}
-
+	
 	public boolean closeRequested() {
 		// TODO - what about HTTP/1.0
 		for(String value : header(Header.CONNECTION)) {
@@ -51,5 +29,9 @@ public abstract class Message implements Headers {
 	}
 	
 	public abstract ByteBuffer body();
-		
+	
+	public boolean hasBody() {
+		return body() != null;
+	}
+	
 }

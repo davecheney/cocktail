@@ -2,22 +2,12 @@ package net.cheney.cocktail.message;
 
 import static net.cheney.cocktail.message.Response.Status.REDIRECTION_NOT_MODIFIED;
 import static net.cheney.cocktail.message.Response.Status.SUCCESS_NO_CONTENT;
-import static org.apache.commons.lang.builder.EqualsBuilder.reflectionEquals;
-import static org.apache.commons.lang.builder.HashCodeBuilder.reflectionHashCode;
-import static org.apache.commons.lang.builder.ToStringStyle.MULTI_LINE_STYLE;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileChannel.MapMode;
-import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Iterator;
 
 import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
 
 import net.cheney.cocktail.message.Header.Accessor;
 
@@ -29,7 +19,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 
-public abstract class Response extends Message implements Headers {
+public abstract class Response extends Message  {
 
 	public interface StatusCode {
 
@@ -144,159 +134,75 @@ public abstract class Response extends Message implements Headers {
 
 	}
 
-	public StatusCode status() {
-		return statusLine().status();
-	}
-	
-	@Immutable
-	public static class StatusLine extends Message.StartLine {
-
-		private final StatusCode status;
-
-		public StatusLine(@Nonnull Version version, @Nonnull StatusCode status) {
-			super(version);
-			this.status = status;
-		}
-		
-		public StatusCode status() {
-			return this.status;
-		}
-
-		@Override
-		public String toString() {
-			return ReflectionToStringBuilder.toString(this, MULTI_LINE_STYLE);
-		}
-		
-		@Override
-		public boolean equals(Object that) {
-			return reflectionEquals(this, that);
-		}
-		
-		@Override
-		public int hashCode() {
-			return reflectionHashCode(this);
-		}
-		
-	}
-
-	public static Response successNoContent() {
-		return Response.builder(SUCCESS_NO_CONTENT).build();
-	}
+	public abstract StatusCode status();
 	
 	public boolean hasBody() {
 		return body() != null;
 	}
 
-	public abstract ByteBuffer buffer();
-
-	public abstract FileChannel channel();
-
-	public Version version() {
-		return statusLine().version();
-	}
-
-	protected abstract StatusLine statusLine();
+	public abstract Version version();
 
 	public boolean mayContainBody() {
 		// http://tools.ietf.org/html/draft-ietf-httpbis-p1-messaging-08#section-3.4
 		return (!status().isInformational() && !status().equals(SUCCESS_NO_CONTENT) && !status().equals(REDIRECTION_NOT_MODIFIED));
 	}
 
-	public static Response.Builder builder(StatusCode status) {
-		return new Response.Builder(status);
+	public static Response.Builder builder(StatusLine statusLine) {
+		return new Response.Builder(statusLine);
 	}
 	
-	public static class Builder {
+	public static class Builder extends Response {
 
-		private final StatusCode status;
-		private ByteBuffer buffer;
-		private Multimap<Header, String> headers = ArrayListMultimap.create();
+		private final StatusLine statusLine;
+		private final Multimap<Header, String> headers = ArrayListMultimap.create();
+		private ByteBuffer body = null;
 
-		private Builder(StatusCode status) {
-			this.status = status;
+		public Builder(StatusLine statusLine) {
+			this.statusLine = statusLine;
+		}
+
+		@Override
+		public Accessor header(Header header) {
+			return new HeaderAccessor(header);
+		}
+
+		@Override
+		public Iterable<Header> keys() {
+			return headers.keySet();
+		}
+
+		@Override
+		public Iterator<Header.Accessor> iterator() {
+			return Iterables.transform(keys(), new Function<Header, Header.Accessor>() {
+				public Header.Accessor apply(Header header) {
+					return new HeaderAccessor(header);
+				};
+			}).iterator();
+		}
+
+		@Override
+		public StatusCode status() {
+			return statusLine.status();
+		}
+
+		@Override
+		public Version version() {
+			return statusLine.version();
 		}
 		
-		public Builder body(File file) throws IOException {
-			FileInputStream fis = null;
-			try {
-				fis = new FileInputStream(file);
-				this.buffer = fis.getChannel().map(MapMode.READ_ONLY, 0, file.length());
-			} finally {
-				closeQuietly(fis);
-				return this;
-			}
-			
+		@Override
+		public ByteBuffer body() {
+			return this.body;
 		}
-
-		private void closeQuietly(FileInputStream fis) {
-			try {
-				fis.close();
-			} catch (IOException ignored) {
-			}
+		
+		public Builder body(ByteBuffer body) {
+			this.body = body;
+			return this;
 		}
-
-		public Response build() {
-			return new Response() {
-
-				@Override
-				public ByteBuffer buffer() {
-					return buffer.asReadOnlyBuffer();
-				}
-
-				@Override
-				public FileChannel channel() {
-					return null;
-				}
-
-				@Override
-				protected StatusLine statusLine() {
-					return new StatusLine(Version.HTTP_1_1, status);
-				}
-
-				@Override
-				public long contentLength() throws IOException {
-					return hasBody() ? buffer.remaining() : 0;
-				}
-
-				@Override
-				public Accessor header(Header header) {
-					return new HeaderAccessor(header);
-				}
-				
-				@Override
-				public String toString() {
-					return ReflectionToStringBuilder.toString(this, ToStringStyle.SIMPLE_STYLE);
-				}
-
-				@Override
-				public ByteBuffer body() {
-					return buffer;
-				}
-				
-				@Override
-				public Iterator<Header.Accessor> iterator() {
-					return Iterables.transform(keys(), new Function<Header, Header.Accessor>() {
-						public Header.Accessor apply(Header header) {
-							return new HeaderAccessor(header);
-						};
-					}).iterator();
-				}
-
-				@Override
-				public Iterable<Header> keys() {
-					return headers.keySet();
-				}
-				
-				@Override
-				public Headers headers() {
-					return this;
-				}
-
-			};
-		}
-
-		public HeaderAccessor header(final Header header) {
-			return new HeaderAccessor(header);
+		
+		@Override
+		public String toString() {
+			return ReflectionToStringBuilder.toString(this, ToStringStyle.SIMPLE_STYLE);
 		}
 		
 		public class HeaderAccessor extends Header.Accessor {
@@ -327,14 +233,6 @@ public abstract class Response extends Message implements Headers {
 			}
 		}
 
-		public Builder body(ByteBuffer buffer) {
-			this.buffer = buffer;
-			return this;
-		}
-
-		public Builder body(String string) {
-			return body(Charset.defaultCharset().encode(string));
-		}
 	}
 
 

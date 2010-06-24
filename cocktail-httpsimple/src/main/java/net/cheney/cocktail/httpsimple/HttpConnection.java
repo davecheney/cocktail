@@ -35,12 +35,12 @@ public class HttpConnection implements Channel.Registration.Handler {
 	private static final Logger LOG = Logger.getLogger(HttpConnection.class);
 
 	enum ReadState {
-		READ_REQUEST_LINE, READ_BODY, PANIC, READ_CHUNKED_BODY
+		READ_HEADER, READ_BODY, PANIC, READ_CHUNKED_BODY
 	}
 
 	private static final Charset US_ASCII = Charset.forName("US-ASCII");
 
-	private ReadState readState = ReadState.READ_REQUEST_LINE;
+	private ReadState readState = ReadState.READ_HEADER;
 
 	private RequestParser requestParser;
 
@@ -48,7 +48,7 @@ public class HttpConnection implements Channel.Registration.Handler {
 	private final Application application;
 	private Channel.Reader reader;
 	private Channel.Writer writer;
-	private RequestParser.Request request;
+	private Request request;
 	private HttpParser<ByteBuffer> bodyReader = null;
 
 	public HttpConnection(SocketChannel sc, Selector selector, Application application) throws IOException {
@@ -104,53 +104,34 @@ public class HttpConnection implements Channel.Registration.Handler {
 
 	private ReadState doRead(ReadState state) throws IOException {
 		switch (state) {
-		case READ_REQUEST_LINE:
-			return readRequestLine();
+		case READ_HEADER:
+			return readHeader();
 
 		case READ_BODY:
 			return readBody();
 			
-		case READ_CHUNKED_BODY:
-			return readChunkedBody();
-		
 		default:
 			return panic();
 		}
 	}
 
-	private ReadState readRequestLine() throws IOException {
+	private ReadState readHeader() throws IOException {
 		request = requestParser.parse(reader.read());
 		if (request == null) {
-			return enableReadInterest(ReadState.READ_REQUEST_LINE);
+			return enableReadInterest(ReadState.READ_HEADER);
 		} else {
 			handleExpect();
-			if(request.header(Header.TRANSFER_ENCODING).contains("chunked")) {
-				bodyReader = new ChunkedRequestParser();
-				return readChunkedBody();
-			} else if(request.mayHaveBody()) {
-				long contentLength = request.contentLength();
-				request.setBody(ByteBuffer.allocate((int) contentLength));
-				return readBody();
-			} else {
-				return handleRequest();
-			}
+			return readBody();
 		}
 	}
-
-	private ReadState readChunkedBody() throws IOException {
-		ByteBuffer body = bodyReader.parse(reader.read());
-		if(body == null) {
-			return enableReadInterest(ReadState.READ_CHUNKED_BODY);
+	
+	private ReadState readBody() throws IOException {
+		request = requestParser.parse(reader.read());
+		if (request == null) {
+			return enableReadInterest(ReadState.READ_BODY);
 		} else {
-			request.setBody(body);
 			return handleRequest();
 		}
-	}
-
-	private ReadState readBody() throws IOException {
-		LOG.debug("readBody: "+request.body());
-		request.body().put(reader.read());
-		return request.body().hasRemaining() ? enableReadInterest(ReadState.READ_BODY) : handleRequest();
 	}
 
 	private ReadState enableReadInterest(ReadState state) {
@@ -159,10 +140,10 @@ public class HttpConnection implements Channel.Registration.Handler {
 	}
 
 	private ReadState handleRequest() throws IOException {
-		Response response = application.call(request);
+		Response response = null ; //application.call(request);
 		sendResponse(response, closeRequested(request, response));
 		reset();
-		return enableReadInterest(ReadState.READ_REQUEST_LINE);
+		return enableReadInterest(ReadState.READ_HEADER);
 	}
 
 	// Expect: is stupid
@@ -185,19 +166,10 @@ public class HttpConnection implements Channel.Registration.Handler {
 	private void sendResponse(Response response, boolean closeRequested) throws IOException {
 		ByteBuffer header = buildHeaderBuffer(response, closeRequested);
 		if (response.hasBody()) {
-			if (response.buffer() != null) {
-				write(header, response.buffer());
-			} else {
-				write(header, response.channel(), response.contentLength());
-			}
+			write(header, response.body());
 		} else {
 			write(header);
 		}
-	}
-
-	private void write(ByteBuffer header, FileChannel channel, long count) throws IOException {
-		writer = writer.write(header).write(channel, count);
-		enableWriteInterestIfThereIsMoreToWrite();
 	}
 
 	private void enableWriteInterestIfThereIsMoreToWrite() {
@@ -226,7 +198,7 @@ public class HttpConnection implements Channel.Registration.Handler {
 
 		Iterable<Header.Accessor> standardHeaders = standardHeaders(response, requestClose);
 
-		for (Header.Accessor header : Iterables.concat(standardHeaders, response.headers())) {
+		for (Header.Accessor header : Iterables.concat(standardHeaders, response)) {
 			buffer.append(format("%s: %s\r\n", header.header().name(),
 					join(header.iterator(), ',')));
 		}

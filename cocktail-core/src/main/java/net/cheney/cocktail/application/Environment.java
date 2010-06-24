@@ -57,7 +57,5 @@ public interface Environment extends Headers {
 	
 	@Nonnull ByteBuffer body();
 	
-	@Nonnull Headers headers();
-
 	boolean hasBody();
 }
