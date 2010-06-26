@@ -91,6 +91,10 @@ public class TrailerNameState extends BaseState {
 				offset = buffer.position();
 				return new TrailerValueState(builder, builder.header(header)).parse(buffer);
 				
+			case '\r':
+				offset = buffer.position();
+				return new BodyEndState(builder).parse(buffer);
+				
 			default:
 				panic(buffer);
 			}

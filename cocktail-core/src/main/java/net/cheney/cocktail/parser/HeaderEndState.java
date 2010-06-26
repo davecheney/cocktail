@@ -23,7 +23,7 @@ public class HeaderEndState extends BaseState {
 				return new IntermediateRequestState(builder);
 				
 			default:
-				throw new IllegalArgumentException();
+				panic(buffer);
 			}
 		}
 		buffer.position(offset);

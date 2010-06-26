@@ -21,7 +21,7 @@ public class ChunkedBodyState extends BaseState {
 		if(body == null) {
 			return this;
 		} else {
-			return new TrailerState(builder.body(body)).parse(buffer);
+			return new TrailerNameState(builder.body(body)).parse(buffer);
 		}
 	}
 

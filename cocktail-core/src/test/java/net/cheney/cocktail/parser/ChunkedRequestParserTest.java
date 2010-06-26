@@ -44,7 +44,9 @@ public class ChunkedRequestParserTest extends BaseParserTest {
 			"1234567890abcdef\r\n"+ // data
 			"0\r\n"+ // last chunk
 			"\r\n"; // no trailers
-		request = parser.parse(request(data));
+		ByteBuffer body = request(data);
+		request = parser.parse(body);
+		Assert.assertFalse(body.hasRemaining());
 		ByteBuffer actual = request.body();
 		ByteBuffer expected = Charset.defaultCharset().encode("abcdefghijklmnopqrstuvwxyz1234567890abcdef");
 		Assert.assertEquals(expected, actual);

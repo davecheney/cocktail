@@ -16,5 +16,10 @@ public abstract class ChunkState {
 	final ChunkState panic(ByteBuffer buffer) {
 		throw new IllegalArgumentException(String.format("%x[%s]", buffer.get(buffer.position() -1), (char)buffer.get(buffer.position() -1)));
 	}
+	
+	final String stringValue(ByteBuffer buffer, int offset) {
+		int length = buffer.position() - offset;
+		return new String(buffer.array(), buffer.arrayOffset() + offset, --length, US_ASCII);
+	}
 
 }
