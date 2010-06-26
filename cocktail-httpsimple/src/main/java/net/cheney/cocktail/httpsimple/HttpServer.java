@@ -112,7 +112,7 @@ public class HttpServer {
 					} catch (IllegalArgumentException e) {
 						key.channel().close();
 						key.cancel();
-						LOG.error(e);
+						LOG.error("Unhandled exception", e);
 					}
 				}
 				keys.clear();

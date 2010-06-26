@@ -12,13 +12,19 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 
 import net.cheney.cocktail.application.Application;
+import net.cheney.cocktail.application.Environment;
+import net.cheney.cocktail.application.Path;
 import net.cheney.cocktail.io.Channel;
 import net.cheney.cocktail.message.Header;
+import net.cheney.cocktail.message.Header.Accessor;
 import net.cheney.cocktail.message.Request;
+import net.cheney.cocktail.message.Request.Method;
 import net.cheney.cocktail.message.Response;
 import net.cheney.cocktail.message.Response.Status;
+import net.cheney.cocktail.message.Version;
 import net.cheney.cocktail.parser.RequestParser;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
@@ -136,10 +142,61 @@ public class HttpConnection implements Channel.Registration.Handler {
 	}
 
 	private ReadState handleRequest() throws IOException {
-		Response response = null ; //application.call(request);
+		Response response = application.call(createEnvironment(request));
 		sendResponse(response, closeRequested(request, response));
 		reset();
 		return enableReadInterest(ReadState.READ_HEADER);
+	}
+
+	private Environment createEnvironment(final Request request) {
+		return new Environment() {
+
+			@Override
+			public Accessor header(Header header) {
+				return request.header(header);
+			}
+
+			@Override
+			public Iterable<Header> keys() {
+				return request.keys();
+			}
+
+			@Override
+			public Iterator<Accessor> iterator() {
+				return request.iterator();
+			}
+
+			@Override
+			public Method method() {
+				return request.method();
+			}
+
+			@Override
+			public Version version() {
+				return request.version();
+			}
+
+			@Override
+			public Path path() {
+				return Path.fromURI(request.uri());
+			}
+
+			@Override
+			public Path contextPath() {
+				return Path.emptyPath();
+			}
+
+			@Override
+			public ByteBuffer body() {
+				return request.body();
+			}
+
+			@Override
+			public boolean hasBody() {
+				return request.hasBody();
+			}
+			
+		};
 	}
 
 	// Expect: is stupid
