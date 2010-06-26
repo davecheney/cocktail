@@ -75,4 +75,27 @@ public class IdentityRequestParserTest extends BaseParserTest {
 		assertEquals(expected, actual);
 		assertFalse(b.toString(), b.hasRemaining());
 	}
+	
+	@Test public void testPutRequest() {
+		ByteBuffer b = request("PUT /.DS_Store HTTP/1.1\r\n"+
+				"Host: deadwood.cheney.net:8081\r\n"+
+				"User-Agent: WebDAVFS/1.8 (01808000) Darwin/10.4.0 (i386)\r\n"+
+				"Accept: */*\r\n"+
+				"If: (</.DS_Store>)\r\n"+
+				"Content-Length: 1\r\nConnection: keep-alive\r\n\r\n" +
+				"X");
+		RequestParser parser = new RequestParser();
+		Request request = parser.parse(b);
+		assertNotNull(ReflectionToStringBuilder.toString(parser), request);
+		assertEquals(request.method(), Method.PUT);
+		assertEquals(request.uri(), URI.create("/.DS_Store"));
+		assertEquals(request.version(), Version.HTTP_1_1);
+		assertElementsEqual(request.header(Header.HOST), Arrays.asList("deadwood.cheney.net:8081"));
+		assertFalse(request.closeRequested());
+		request = parser.parse(b);
+		ByteBuffer actual = request.body();
+		ByteBuffer expected = Charset.defaultCharset().encode("X");
+		assertEquals(expected, actual);
+		assertFalse(b.toString(), b.hasRemaining());
+	}
 }
