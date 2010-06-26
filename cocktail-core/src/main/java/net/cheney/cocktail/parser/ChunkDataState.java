@@ -14,15 +14,16 @@ public class ChunkDataState extends ChunkState {
 	public ChunkState parse(ByteBuffer buffer) {
 		ByteBuffer target = builder.chunk();
 		int limit = buffer.limit();
-		buffer.limit(buffer.position()+target.remaining());
+		int newLimit = Math.min(limit, buffer.position() + target.remaining());
+		buffer.limit(newLimit);
 		target.put(buffer);
 		buffer.limit(limit);
-		if(target.hasRemaining()) {
+		if (target.hasRemaining()) {
 			return this;
 		} else {
 			return new ChunkDataTrailerState(builder).parse(buffer);
 		}
-		
+
 	}
 
 }

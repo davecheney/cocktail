@@ -14,7 +14,7 @@ public abstract class ChunkState {
 	}
 	
 	final ChunkState panic(ByteBuffer buffer) {
-		throw new IllegalArgumentException("[" + (char)buffer.get(buffer.position() -1) + "]");
+		throw new IllegalArgumentException(String.format("%x[%s]", buffer.get(buffer.position() -1), (char)buffer.get(buffer.position() -1)));
 	}
 
 }
