@@ -1,5 +1,8 @@
 package net.cheney.cocktail.message;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 abstract class StartLine {
 
 	public abstract Version version();
@@ -9,5 +12,10 @@ abstract class StartLine {
 	
 	@Override
 	public abstract boolean equals(Object obj);
+	
+	@Override
+	public String toString() {
+		return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+	}
 
 }

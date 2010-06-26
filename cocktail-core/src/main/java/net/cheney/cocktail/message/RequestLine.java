@@ -2,9 +2,6 @@ package net.cheney.cocktail.message;
 
 import java.net.URI;
 
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
-
 import net.cheney.cocktail.message.Request.Method;
 
 public abstract class RequestLine extends StartLine {
@@ -73,8 +70,4 @@ public abstract class RequestLine extends StartLine {
 		return false;
 	}
 	
-	@Override
-	public String toString() {
-		return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
-	}
 }
