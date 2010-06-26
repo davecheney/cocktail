@@ -25,8 +25,16 @@ public class IntermediateRequestState extends BaseState {
 
 		case IDENTITY:
 		default:
-			return new IdentityBodyState(builder).parse(buffer);
+			if(hasContentLength()) {
+				return new IdentityBodyState(builder).parse(buffer);
+			} else {
+				return new ResultState(builder);
+			}
 		}
+	}
+
+	private boolean hasContentLength() {
+		return builder.header(Header.CONTENT_LENGTH).any();
 	}
 
 	private TransferEncoding transferEncoding() {

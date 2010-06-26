@@ -89,8 +89,14 @@ public class HeaderValueState extends BaseState {
 			case ' ':
 			case '.':
 			case '=':
+			case '/':
+			case ',':
+			case '-':
+			case ':':
+			case '(':
+			case ')':
+			case '_':
 				continue;
-				
 				
 			case '\r':
 				int length = buffer.position() - offset;

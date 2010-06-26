@@ -24,17 +24,17 @@ abstract class BaseState implements State {
 		return (t >= '\u0021' && t <= '\u007E');
 	}
 
-	final boolean isTokenChar(byte b) {
-		return ((b >= '\u0030' && b <= '\u0039')
-				|| (b >= '\u0041' && b <= '\u005A')
-				|| (b >= '\u0061' && b <= '\u007a') || b == '!' || b == '#'
-				|| b == '$' || b == '%' || b == '&' || b == '\'' || b == '*'
-				|| b == '+' || b == '-' || b == '.' || b == '^' || b == '_'
-				|| b == '`' || b == '|' || b == '~');
+	final boolean isTokenChar(byte c) {
+		return ((c >= '\u0030' && c <= '\u0039')
+				|| (c >= '\u0041' && c <= '\u005A')
+				|| (c >= '\u0061' && c <= '\u007a') || c == '!' || c == '#'
+				|| c == '$' || c == '%' || c == '&' || c == '\'' || c == '*'
+				|| c == '+' || c == '-' || c == '.' || c == '^' || c == '_'
+				|| c == '`' || c == '|' || c == '~');
 	}
 	
 	final State panic(ByteBuffer buffer) {
-		throw new IllegalArgumentException("" + (char)buffer.get(buffer.position() -1));
+		throw new IllegalArgumentException("[" + (char)buffer.get(buffer.position() -1) + "]");
 	}
 	
 	final String stringValue(ByteBuffer buffer, int offset) {
