@@ -33,6 +33,7 @@ public class IdentityBodyState extends BaseState {
 				return this;
 			}
 		}
+		builder.body().flip(); // lame
 		return new ResultState(builder);
 	}
 

@@ -21,6 +21,26 @@ public class HeaderNameState extends BaseState {
 		while(buffer.hasRemaining()) {
 			switch(buffer.get()) {
 			// token
+			case '!':
+			case '#':
+			case '$':
+			case '%':
+			case '&':
+			case '\'':
+			case '*':
+			case '+':
+			case '-':
+			case '.':
+			case '0':
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+			case '8':
+			case '9':
 			case 'A':
 			case 'B':
 			case 'C':
@@ -47,7 +67,9 @@ public class HeaderNameState extends BaseState {
 			case 'X':
 			case 'Y':
 			case 'Z':
-			// LOALPHA 
+			case '^':
+			case '_':
+			case '`':
 			case 'a':
 			case 'b':
 			case 'c':
@@ -74,19 +96,8 @@ public class HeaderNameState extends BaseState {
 			case 'x':
 			case 'y':
 			case 'z':
-			// DIGIT
-			case '0':
-			case '1':
-			case '2':
-			case '3':
-			case '4':
-			case '5':
-			case '6':
-			case '7':
-			case '8':
-			case '9':
-			// token
-			case '-':
+			case '|':
+			case '~':
 				continue;
 				
 			case ':':

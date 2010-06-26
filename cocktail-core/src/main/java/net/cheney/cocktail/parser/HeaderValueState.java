@@ -96,12 +96,12 @@ public class HeaderValueState extends BaseState {
 			case '(':
 			case ')':
 			case '_':
+			case ';':
+			case '|':
 				continue;
 				
 			case '\r':
-				int length = buffer.position() - offset;
-				String value = new String(buffer.array(), buffer.arrayOffset() + offset, --length, US_ASCII);
-				header.add(value.trim());
+				header.add(stringValue(buffer, offset).trim());
 				offset = buffer.position();
 				return new HeaderValueEnd(builder).parse(buffer);
 				
