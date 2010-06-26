@@ -46,6 +46,11 @@ public class Path implements Iterable<String> {
 			return false;
 		}
 	}
+	
+	@Override
+	public int hashCode() {
+		return Arrays.hashCode(this.parts);
+	}
 
 	public static Path create(String... string) {
 		return new Path(string);
