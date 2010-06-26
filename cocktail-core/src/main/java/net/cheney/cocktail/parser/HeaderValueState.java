@@ -98,6 +98,7 @@ public class HeaderValueState extends BaseState {
 			case '_':
 			case ';':
 			case '|':
+			case '%':
 				continue;
 				
 			case '\r':

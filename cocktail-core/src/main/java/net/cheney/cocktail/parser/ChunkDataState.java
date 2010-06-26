@@ -12,16 +12,15 @@ public class ChunkDataState extends ChunkState {
 
 	@Override
 	public ChunkState parse(ByteBuffer buffer) {
-		ByteBuffer source = buffer.asReadOnlyBuffer();
-		// TODO needs to be smarter
-		source.limit(source.position() + builder.chunk().remaining());
-		builder.chunk().put(source);
-		// always consume, urgh
-		buffer.position(buffer.position() + builder.chunk().position()).position();
-		if(!builder.chunk().hasRemaining()) {
-			return new ChunkDataTrailerState(builder).parse(buffer);
-		} else {
+		ByteBuffer target = builder.chunk();
+		int limit = buffer.limit();
+		buffer.limit(buffer.position()+target.remaining());
+		target.put(buffer);
+		buffer.limit(limit);
+		if(target.hasRemaining()) {
 			return this;
+		} else {
+			return new ChunkDataTrailerState(builder).parse(buffer);
 		}
 		
 	}
