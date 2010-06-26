@@ -3,20 +3,17 @@ package net.cheney.cocktail.parser;
 import java.nio.ByteBuffer;
 
 import net.cheney.cocktail.message.Header;
-import net.cheney.cocktail.message.Request;
-import net.cheney.cocktail.message.Request.Builder;
-import net.cheney.cocktail.parser.RequestParser.State;
 
-public class HeaderNameState extends BaseState {
-	
-	private final Builder builder;
+public class ChunkExtensionState extends ChunkState {
 
-	public HeaderNameState(Request.Builder builder) {
+	private final ChunkBuilder builder;
+
+	public ChunkExtensionState(ChunkBuilder builder) {
 		this.builder = builder;
 	}
 
 	@Override
-	public State parse(ByteBuffer buffer) {
+	public ChunkState parse(ByteBuffer buffer) {
 		int offset = buffer.position();
 		while(buffer.hasRemaining()) {
 			switch(buffer.get()) {
@@ -87,19 +84,13 @@ public class HeaderNameState extends BaseState {
 			case '9':
 			// token
 			case '-':
+			case ' ':
 				continue;
 				
-				
-			case ':':
-				int length = buffer.position() - offset;
-				String s = new String(buffer.array(), buffer.arrayOffset() + offset, --length, US_ASCII);
-				Header header = parseHeader(s);
-				offset = buffer.position();
-				return new HeaderValueState(builder, builder.header(header)).parse(buffer);
-				
 			case '\r':
+				// discard extension
 				offset = buffer.position();
-				return new HeaderEndState(builder).parse(buffer);
+				return new ChunkExtensionEndState(builder).parse(buffer);
 				
 			default:
 				panic(buffer);
@@ -107,27 +98,6 @@ public class HeaderNameState extends BaseState {
 		}
 		buffer.position(offset);
 		return this;
-	}
-	
-	private Header parseHeader(final String s) {
-		return new Header() {
-
-			@Override
-			public net.cheney.cocktail.message.Header.Type type() {
-				return Type.REQUEST;
-			}
-
-			@Override
-			public String name() {
-				return s;
-			}
-			
-			@Override
-			public String toString() {
-				return name();
-			}
-
-		};	
 	}
 
 }

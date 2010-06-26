@@ -26,21 +26,25 @@ public class ChunkedRequestParserTest extends BaseParserTest {
 
 	// http://www.jmarshall.com/easy/http/#http1.1c2
 	@Test public void testChunkedRequestParser() {
-		String data = 
-			"1a; ignore-stuff-here\r\n"+
-			"abcdefghijklmnopqrstuvwxyz\r\n"+
-			"10\r\n"+
-			"1234567890abcdef\r\n"+
-			"0\r\n";
-		ByteBuffer b = request("GET /foo HTTP/1.1\r\nHost: www.example.com\r\nTransfer-Encoding: chunked\r\n\r\n"+data);
+
 		RequestParser parser = new RequestParser();
-		Request request = parser.parse(b);
+		Request request = parser.parse(request("GET /foo HTTP/1.1\r\nHost: www.example.com\r\nTransfer-Encoding: chunked\r\n\r\n"));
 		assertNotNull(ReflectionToStringBuilder.toString(parser, ToStringStyle.SHORT_PREFIX_STYLE), request);
 		assertEquals(request.method(), Method.GET);
 		assertEquals(request.uri(), URI.create("/foo"));
 		assertEquals(request.version(), Version.HTTP_1_1);
 		assertTrue(Iterables.elementsEqual(request.header(Header.HOST), Arrays.asList("www.example.com")));
 		assertTrue(Iterables.elementsEqual(request.header(Header.TRANSFER_ENCODING), Arrays.asList("chunked")));
+		
+		// parse body
+		String data = 
+			"1a; ignore-stuff-here\r\n"+ // chunk ; extension
+			"abcdefghijklmnopqrstuvwxyz\r\n"+ // data
+			"10\r\n"+ // chunk
+			"1234567890abcdef\r\n"+ // data
+			"0\r\n"+ // last chunk
+			"\r\n"; // no trailers
+		request = parser.parse(request(data));
 		ByteBuffer actual = request.body();
 		ByteBuffer expected = Charset.defaultCharset().encode("abcdefghijklmnopqrstuvwxyz1234567890abcdef");
 		Assert.assertEquals(expected, actual);

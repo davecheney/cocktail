@@ -2,11 +2,11 @@ package net.cheney.cocktail.parser;
 
 import java.nio.ByteBuffer;
 
-public class LastChunkEndState extends ChunkState {
+public class ChunkExtensionEndState extends ChunkState {
 
 	private final ChunkBuilder builder;
 
-	public LastChunkEndState(ChunkBuilder builder) {
+	public ChunkExtensionEndState(ChunkBuilder builder) {
 		this.builder = builder;
 	}
 
@@ -17,7 +17,7 @@ public class LastChunkEndState extends ChunkState {
 			switch(buffer.get()) {
 			case '\n':
 				offset = buffer.position();
-				return new ChunkResultState(builder);
+				return new ChunkDataState(builder).parse(buffer);
 				
 			default:
 				panic(buffer);

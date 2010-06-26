@@ -50,24 +50,22 @@ public class ChunkSizeState extends ChunkState {
 				int chunksize = Integer.parseInt(s.trim(), 16);
 				offset = buffer.position();
 				if(chunksize > 0) {
-					panic(buffer);
+					return new ChunkExtensionState(builder.allocateChunk(chunksize)).parse(buffer);
 				} else {
 					panic(buffer);
 				}
 				continue;
 				
-			case '\n':
-				int l = buffer.position() - offset -1; // why ?
+			case '\r':
+				int l = buffer.position() - offset; // why ?
 				String s2 = new String(buffer.array(), buffer.arrayOffset() + offset , --l, US_ASCII);
 				int chunksize2 = Integer.parseInt(s2.trim(), 16);
 				offset = buffer.position();
 				if(chunksize2 > 0) {
-//					this.chunk = allocateChunk(chunksize2);
-//					state = State.CHUNK_DATA;
+					return new ChunkSizeEndState(builder.allocateChunk(chunksize2)).parse(buffer);
 				} else {
 					return new LastChunkEndState(builder).parse(buffer);
 				}
-				break;
 				
 			default:
 				panic(buffer);
