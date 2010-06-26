@@ -26,6 +26,7 @@ import net.cheney.cocktail.io.Channel.Registration;
 public class HttpServer {
 	
 	private static final Logger LOG = Logger.getLogger(HttpServer.class);
+	private static final Logger WORKER_LOGGER = Logger.getLogger(HttpServer.HttpWorkerCallable.class);
 
 	private final List<ServerSocketChannel> channels;
 	private final Application application;
@@ -68,7 +69,7 @@ public class HttpServer {
 		public Builder bind(SocketAddress address) throws IOException {
 			ServerSocketChannel ssc = SelectorProvider.provider().openServerSocketChannel();
 			ServerSocket socket = ssc.socket();
-//			socket.setReceiveBufferSize(65536);
+			socket.setReceiveBufferSize(65536);
 			socket.setReuseAddress(true);
 			socket.bind(address);
 			ssc.configureBlocking(false);
@@ -88,7 +89,8 @@ public class HttpServer {
 		public HttpWorkerCallable() throws IOException {
 			this.selector = SelectorProvider.provider().openSelector();
 			for(SelectableChannel channel : channels) {
-				channel.register(selector, SelectionKey.OP_ACCEPT);
+				SelectionKey sk = channel.register(selector, SelectionKey.OP_ACCEPT);
+				WORKER_LOGGER.info("Registered: "+sk);
 			}
 		}
 		
@@ -127,6 +129,7 @@ public class HttpServer {
 					if(sc != null) {
 						sc.configureBlocking(false);
 						sc.socket().setSendBufferSize(65536);
+//						sc.socket().setTcpNoDelay(true);
 						new HttpConnection(sc, selector, application);
 					}
 					break;

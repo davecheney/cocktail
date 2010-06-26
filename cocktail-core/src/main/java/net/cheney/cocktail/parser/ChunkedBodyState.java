@@ -2,6 +2,9 @@ package net.cheney.cocktail.parser;
 
 import java.nio.ByteBuffer;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 import net.cheney.cocktail.message.Request.Builder;
 import net.cheney.cocktail.parser.RequestParser.State;
 
@@ -25,4 +28,8 @@ public class ChunkedBodyState extends BaseState {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+	}
 }

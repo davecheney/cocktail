@@ -51,8 +51,8 @@ public class RequestParserTest extends BaseParserTest {
 		assertEquals(request.method(), Method.GET);
 		assertEquals(request.uri(), URI.create("/foo"));
 		assertEquals(request.version(), Version.HTTP_1_1);
-		assertTrue(Iterables.elementsEqual(request.header(Header.HOST), Arrays.asList("www.example.com")));
-		assertTrue(Iterables.elementsEqual(request.header(Header.COOKIE), Arrays.asList("foo=1", "bar=2")));
+		assertElementsEqual(request.header(Header.HOST), Arrays.asList("www.example.com"));
+		assertElementsEqual(request.header(Header.COOKIE), Arrays.asList("foo=1", "bar=2"));
 	}
 	
 	@Test public void testOptionsRequest() {

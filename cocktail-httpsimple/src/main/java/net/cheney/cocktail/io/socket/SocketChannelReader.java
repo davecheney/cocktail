@@ -27,11 +27,12 @@ public class SocketChannelReader extends Channel.Reader {
 	
 	private ByteBuffer readSocket() throws IOException {
 		int read = channel.read(buffer.compact());
+		int remaining = buffer.remaining();
 		if(read < 0) {
 			throw new ClosedChannelException();
 		}
 		buffer.flip();
-		LOG.debug(format("Read: %d, remaining: %d [%s]", read, buffer.remaining(), buffer.toString()));
+		LOG.debug(format("Read: %d, remaining: %d [%s]", read, remaining, buffer.toString()));
 		return buffer;
 	}
 	

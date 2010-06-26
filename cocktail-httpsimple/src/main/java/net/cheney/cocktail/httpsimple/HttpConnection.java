@@ -29,10 +29,13 @@ import net.cheney.cocktail.parser.RequestParser;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.log4j.Logger;
 
 import com.google.common.collect.Iterables;
 
 public class HttpConnection implements Channel.Registration.Handler {
+	
+	private static final Logger LOG = Logger.getLogger(HttpConnection.class);
 	
 	enum ReadState {
 		READ_HEADER, READ_BODY, PANIC;
@@ -48,7 +51,6 @@ public class HttpConnection implements Channel.Registration.Handler {
 	private final Application application;
 	private Channel.Reader reader;
 	private Channel.Writer writer;
-	private Request request;
 
 	public HttpConnection(SocketChannel sc, Selector selector, Application application) throws IOException {
 		this.channel = Channel.register(selector, sc, SelectionKey.OP_READ, this);
@@ -59,7 +61,6 @@ public class HttpConnection implements Channel.Registration.Handler {
 	}
 
 	private void reset() throws IOException {
-		this.request = null;
 		this.requestParser = new RequestParser();
 	}
 
@@ -115,21 +116,22 @@ public class HttpConnection implements Channel.Registration.Handler {
 	}
 
 	private ReadState readHeader() throws IOException {
-		request = requestParser.parse(reader.read());
+		Request request = requestParser.parse(reader.read());
 		if (request == null) {
 			return enableReadInterest(ReadState.READ_HEADER);
 		} else {
-			handleExpect();
+			handleExpect(request);
 			return readBody();
 		}
 	}
 	
 	private ReadState readBody() throws IOException {
-		request = requestParser.parse(reader.read());
+		Request request = requestParser.parse(reader.read());
 		if (request == null) {
+//			LOG.info(String.format("{%s} Waiting for more body data: %s", reader, requestParser));
 			return enableReadInterest(ReadState.READ_BODY);
 		} else {
-			return handleRequest();
+			return handleRequest(request);
 		}
 	}
 
@@ -138,7 +140,7 @@ public class HttpConnection implements Channel.Registration.Handler {
 		return state;
 	}
 
-	private ReadState handleRequest() throws IOException {
+	private ReadState handleRequest(Request request) throws IOException {
 		Response response = application.call(createEnvironment(request));
 		sendResponse(response, closeRequested(request, response));
 		reset();
@@ -197,7 +199,7 @@ public class HttpConnection implements Channel.Registration.Handler {
 	}
 
 	// Expect: is stupid
-	private void handleExpect() throws IOException {
+	private void handleExpect(Request request) throws IOException {
 		if(request.header(Header.EXPECT).any()) {
 			sendExpect();
 		}

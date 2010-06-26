@@ -4,6 +4,7 @@ import static org.apache.commons.lang.StringUtils.join;
 import static org.apache.commons.lang.StringUtils.split;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -64,6 +65,16 @@ public class Path implements Iterable<String> {
 
 	public boolean isEmpty() {
 		return parts.length == 0;
+	}
+
+	public URI toURI() {
+		try {
+			return new URI(null, null, toString(), null);
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 }
