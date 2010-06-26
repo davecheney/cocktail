@@ -1,6 +1,7 @@
 package net.cheney.cocktail.parser;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
@@ -70,4 +71,5 @@ public class RequestParserTest extends BaseParserTest {
 		assertElementsEqual(request.header(Header.HOST), Arrays.asList("deadwood.cheney.net:8081"));
 		assertTrue(request.closeRequested());
 	}
+	
 }
