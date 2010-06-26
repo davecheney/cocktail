@@ -29,14 +29,11 @@ import net.cheney.cocktail.parser.RequestParser;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.apache.log4j.Logger;
 
 import com.google.common.collect.Iterables;
 
 public class HttpConnection implements Channel.Registration.Handler {
 	
-	private static final Logger LOG = Logger.getLogger(HttpConnection.class);
-
 	enum ReadState {
 		READ_HEADER, READ_BODY, PANIC;
 	}
@@ -307,8 +304,19 @@ public class HttpConnection implements Channel.Registration.Handler {
 				}
 			}
 		};
-		
-		return response.mayContainBody() ? Arrays.asList(date, connection, contentLength) : Arrays.asList(date, connection);
+		if(response.mayContainBody()) {
+			if(requestClose) {
+				return Arrays.asList(date, connection, contentLength);
+			} else {
+				return Arrays.asList(date, contentLength);
+			}
+		} else {
+			if(requestClose) {
+				return Arrays.asList(date, connection);
+			} else {
+				return Arrays.asList(date);
+			}
+		}
 	}
 
 	private CharSequence responseLine(Response response) {
