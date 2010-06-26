@@ -1,16 +1,13 @@
 package net.cheney.cocktail.parser;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 
-import net.cheney.cocktail.message.Request;
 import net.cheney.cocktail.message.RequestLine.Builder;
 import net.cheney.cocktail.message.Version;
 import net.cheney.cocktail.parser.RequestParser.State;
 
-public class VersionState implements State {
+public class VersionState extends BaseState {
 	
-	private static final Charset US_ASCII = Charset.forName("US-ASCII");
 	private final Builder builder;
 
 	public VersionState(Builder builder) {
@@ -39,25 +36,17 @@ public class VersionState implements State {
 			case '9':
 				continue;
 				
-				
 			case '\r':
-				int length = buffer.position() - offset;
-				String s = new String(buffer.array(), buffer.arrayOffset() + offset, --length, US_ASCII);
-				Version version = Version.parse(s);
+				Version version = Version.parse(stringValue(buffer, offset));
 				offset = buffer.position();
 				return new RequestLineState(builder.version(version)).parse(buffer);
 				
 			default:
-				throw new IllegalArgumentException("" + (char)buffer.get(buffer.position() -1));
+				panic(buffer);
 			}
 		}
 		buffer.position(offset);
 		return this;
-	}
-
-	@Override
-	public Request result() {
-		return null;
 	}
 
 }

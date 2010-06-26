@@ -1,17 +1,13 @@
 package net.cheney.cocktail.parser;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 
-import net.cheney.cocktail.message.Request;
 import net.cheney.cocktail.message.Request.Builder;
 import net.cheney.cocktail.message.Request.Builder.HeaderAccessor;
 import net.cheney.cocktail.parser.RequestParser.State;
 
-public class HeaderValueState implements State {
+public class HeaderValueState extends BaseState {
 	
-	private static final Charset US_ASCII = Charset.forName("US-ASCII");
-
 	private final Builder builder;
 	private final HeaderAccessor header;
 
@@ -104,16 +100,11 @@ public class HeaderValueState implements State {
 				return new HeaderValueEnd(builder).parse(buffer);
 				
 			default:
-				throw new IllegalArgumentException("[" + (char)buffer.get(buffer.position() -1)+"]");
+				panic(buffer);
 			}
 		}
 		buffer.position(offset);
 		return this;
-	}
-
-	@Override
-	public Request result() {
-		return null;
 	}
 
 }

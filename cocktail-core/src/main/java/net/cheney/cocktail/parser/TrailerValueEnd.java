@@ -5,11 +5,11 @@ import java.nio.ByteBuffer;
 import net.cheney.cocktail.message.Request.Builder;
 import net.cheney.cocktail.parser.RequestParser.State;
 
-public class HeaderEndState extends BaseState {
+public class TrailerValueEnd extends BaseState {
 
 	private final Builder builder;
 
-	public HeaderEndState(Builder builder) {
+	public TrailerValueEnd(Builder builder) {
 		this.builder = builder;
 	}
 
@@ -20,10 +20,10 @@ public class HeaderEndState extends BaseState {
 			switch(buffer.get()) {
 			case '\n':
 				offset = buffer.position();
-				return new IntermediateRequestState(builder);
+				return new TrailerNameState(builder);
 				
 			default:
-				throw new IllegalArgumentException();
+				panic(buffer);
 			}
 		}
 		buffer.position(offset);

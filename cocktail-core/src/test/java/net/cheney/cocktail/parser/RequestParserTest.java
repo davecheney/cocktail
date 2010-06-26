@@ -8,14 +8,13 @@ import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import junit.framework.Assert;
-
 import net.cheney.cocktail.message.Header;
 import net.cheney.cocktail.message.Request;
 import net.cheney.cocktail.message.Request.Method;
 import net.cheney.cocktail.message.Version;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.junit.Test;
 
 import com.google.common.collect.Iterables;
@@ -36,7 +35,7 @@ public class RequestParserTest extends BaseParserTest {
 		ByteBuffer b = request("GET /foo HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
 		RequestParser parser = new RequestParser();
 		Request request = parser.parse(b);
-		assertNotNull(ReflectionToStringBuilder.toString(parser), request);
+		assertNotNull(ReflectionToStringBuilder.toString(parser, ToStringStyle.SHORT_PREFIX_STYLE), request);
 		assertEquals(request.method(), Method.GET);
 		assertEquals(request.uri(), URI.create("/foo"));
 		assertEquals(request.version(), Version.HTTP_1_1);

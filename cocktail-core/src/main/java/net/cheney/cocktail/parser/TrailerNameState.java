@@ -3,15 +3,14 @@ package net.cheney.cocktail.parser;
 import java.nio.ByteBuffer;
 
 import net.cheney.cocktail.message.Header;
-import net.cheney.cocktail.message.Request;
 import net.cheney.cocktail.message.Request.Builder;
 import net.cheney.cocktail.parser.RequestParser.State;
 
-public class HeaderNameState extends BaseState {
-	
+public class TrailerNameState extends BaseState {
+
 	private final Builder builder;
 
-	public HeaderNameState(Request.Builder builder) {
+	public TrailerNameState(Builder builder) {
 		this.builder = builder;
 	}
 
@@ -93,11 +92,7 @@ public class HeaderNameState extends BaseState {
 				String s = new String(buffer.array(), buffer.arrayOffset() + offset, --length, US_ASCII);
 				Header header = parseHeader(s);
 				offset = buffer.position();
-				return new HeaderValueState(builder, builder.header(header)).parse(buffer);
-				
-			case '\r':
-				offset = buffer.position();
-				return new HeaderEndState(builder).parse(buffer);
+				return new TrailerValueState(builder, builder.header(header)).parse(buffer);
 				
 			default:
 				panic(buffer);

@@ -6,9 +6,9 @@ import net.cheney.cocktail.message.Request;
 import net.cheney.cocktail.message.RequestLine.Builder;
 import net.cheney.cocktail.parser.RequestParser.State;
 
-public class RequestLineState implements State {
+public class RequestLineState extends BaseState {
 
-	private Builder builder;
+	private final Builder builder;
 
 	public RequestLineState(Builder builder) {
 		this.builder = builder;
@@ -21,7 +21,7 @@ public class RequestLineState implements State {
 			switch(buffer.get()) {
 			case '\n':
 				offset = buffer.position();
-				return new HeaderState(Request.builder(builder.build())).parse(buffer);
+				return new HeaderNameState(Request.builder(builder.build())).parse(buffer);
 				
 			default:
 				throw new IllegalArgumentException();
@@ -29,12 +29,6 @@ public class RequestLineState implements State {
 		}
 		buffer.position(offset);
 		return this;
-	}
-
-	@Override
-	public Request result() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

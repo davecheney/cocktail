@@ -2,11 +2,10 @@ package net.cheney.cocktail.parser;
 
 import java.nio.ByteBuffer;
 
-import net.cheney.cocktail.message.Request;
 import net.cheney.cocktail.message.Request.Builder;
 import net.cheney.cocktail.parser.RequestParser.State;
 
-public class HeaderValueEnd implements State {
+public class HeaderValueEnd extends BaseState {
 
 	private final Builder builder;
 
@@ -21,19 +20,14 @@ public class HeaderValueEnd implements State {
 			switch(buffer.get()) {
 			case '\n':
 				offset = buffer.position();
-				return new HeaderNameState(builder);
+				return new HeaderNameState(builder).parse(buffer);
 				
 			default:
-				throw new IllegalArgumentException();
+				panic(buffer);
 			}
 		}
 		buffer.position(offset);
 		return this;
-	}
-
-	@Override
-	public Request result() {
-		return null;
 	}
 
 }

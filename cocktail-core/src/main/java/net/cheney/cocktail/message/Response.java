@@ -9,8 +9,6 @@ import java.util.Iterator;
 
 import javax.annotation.Nonnull;
 
-import net.cheney.cocktail.message.Header.Accessor;
-
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
@@ -147,6 +145,10 @@ public abstract class Response extends Message  {
 		return (!status().isInformational() && !status().equals(SUCCESS_NO_CONTENT) && !status().equals(REDIRECTION_NOT_MODIFIED));
 	}
 
+	public static Response.Builder builder(StatusCode status) {
+		return builder(StatusLine.builder().status(status).version(Version.HTTP_1_1));
+	}
+	
 	public static Response.Builder builder(StatusLine statusLine) {
 		return new Response.Builder(statusLine);
 	}
@@ -162,7 +164,7 @@ public abstract class Response extends Message  {
 		}
 
 		@Override
-		public Accessor header(Header header) {
+		public HeaderAccessor header(Header header) {
 			return new HeaderAccessor(header);
 		}
 
@@ -231,6 +233,10 @@ public abstract class Response extends Message  {
 			public void set(Iterable<String> values) {
 				Iterables.addAll(headers.get(key), values);
 			}
+		}
+
+		public Response build() {
+			return this;
 		}
 
 	}

@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChunkedRequestParser extends HttpParser<ByteBuffer> {
+public class ChunkedRequestParser {
 	
 	private enum State {
 		CHUNK_SIZE, CHUNK_EXTENSION, CHUNK_DATA, CHUNK_DATA_TRAILER, TRAILER
@@ -12,9 +12,6 @@ public class ChunkedRequestParser extends HttpParser<ByteBuffer> {
 	
 	private State state = State.CHUNK_SIZE;
 
-	private ByteBuffer chunk;
-	private List<ByteBuffer> chunks = new ArrayList<ByteBuffer>();
-	
 	public ChunkedRequestParser() {
 		reset();
 	}
@@ -178,10 +175,4 @@ public class ChunkedRequestParser extends HttpParser<ByteBuffer> {
 		return chunk;
 	}
 	
-	@Override
-	public void reset() {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

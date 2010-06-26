@@ -6,7 +6,6 @@ import static org.apache.commons.lang.StringUtils.join;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
@@ -20,8 +19,6 @@ import net.cheney.cocktail.message.Header;
 import net.cheney.cocktail.message.Request;
 import net.cheney.cocktail.message.Response;
 import net.cheney.cocktail.message.Response.Status;
-import net.cheney.cocktail.parser.ChunkedRequestParser;
-import net.cheney.cocktail.parser.HttpParser;
 import net.cheney.cocktail.parser.RequestParser;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
@@ -35,7 +32,7 @@ public class HttpConnection implements Channel.Registration.Handler {
 	private static final Logger LOG = Logger.getLogger(HttpConnection.class);
 
 	enum ReadState {
-		READ_HEADER, READ_BODY, PANIC, READ_CHUNKED_BODY
+		READ_HEADER, READ_BODY, PANIC;
 	}
 
 	private static final Charset US_ASCII = Charset.forName("US-ASCII");
@@ -49,7 +46,6 @@ public class HttpConnection implements Channel.Registration.Handler {
 	private Channel.Reader reader;
 	private Channel.Writer writer;
 	private Request request;
-	private HttpParser<ByteBuffer> bodyReader = null;
 
 	public HttpConnection(SocketChannel sc, Selector selector, Application application) throws IOException {
 		this.channel = Channel.register(selector, sc, SelectionKey.OP_READ, this);
@@ -154,9 +150,7 @@ public class HttpConnection implements Channel.Registration.Handler {
 	}
 
 	private void sendExpect() throws IOException {
-		CharBuffer buffer = CharBuffer.allocate(8192);
-		buffer.append(format("HTTP/1.1 %s %s\r\n\r\n", Status.INFO_CONTINUE.code(), Status.INFO_CONTINUE.reason()));
-		write(US_ASCII.encode((CharBuffer) buffer.flip()));		
+		write(US_ASCII.encode(format("HTTP/1.1 %s %s\r\n\r\n", Status.INFO_CONTINUE.code(), Status.INFO_CONTINUE.reason())));		
 	}
 
 	private boolean closeRequested(Request request, Response response) {

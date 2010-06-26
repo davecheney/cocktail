@@ -2,16 +2,11 @@ package net.cheney.cocktail.parser;
 
 import java.net.URI;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 
-import net.cheney.cocktail.message.Request;
 import net.cheney.cocktail.message.RequestLine.Builder;
 import net.cheney.cocktail.parser.RequestParser.State;
 
-public class URIState implements State {
-
-	private static final Charset US_ASCII = Charset.forName("US-ASCII");
-//	private static final Charset UTF_8 = Charset.forName("UTF-8");
+public class URIState extends BaseState {
 	
 	private final Builder builder;
 
@@ -115,24 +110,16 @@ public class URIState implements State {
 				continue;
 			
 			case ' ':
-				int length = buffer.position() - offset;
-				String s = new String(buffer.array(), buffer.arrayOffset() + offset, --length, US_ASCII);
-//					String s = URLDecoder.decode(s, UTF_8.displayName());
+				URI uri = URI.create(stringValue(buffer, offset));
 				offset = buffer.position();
-				URI uri = URI.create(s);
 				return new VersionState(this.builder.uri(uri)).parse(buffer);
 				
 			default:
-				throw new IllegalArgumentException("" + (char)buffer.get(buffer.position() -1));
+				panic(buffer);
 			}
 		}
 		buffer.position(offset);
 		return this;
-	}
-
-	@Override
-	public Request result() {
-		return null;
 	}
 
 }

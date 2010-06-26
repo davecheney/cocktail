@@ -1,17 +1,13 @@
 package net.cheney.cocktail.parser;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 
-import net.cheney.cocktail.message.Request;
-import net.cheney.cocktail.message.RequestLine;
 import net.cheney.cocktail.message.Request.Method;
+import net.cheney.cocktail.message.RequestLine;
 import net.cheney.cocktail.parser.RequestParser.State;
 
-public class MethodState implements State {
+public class MethodState extends BaseState {
 	
-	private static final Charset US_ASCII = Charset.forName("US-ASCII");
-
 	@Override
 	public State parse(ByteBuffer buffer) {
 		int offset = buffer.position();
@@ -59,11 +55,6 @@ public class MethodState implements State {
 		}
 		buffer.position(offset);
 		return this;
-	}
-
-	@Override
-	public Request result() {
-		return null;
 	}
 
 }

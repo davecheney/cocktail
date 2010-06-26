@@ -2,15 +2,14 @@ package net.cheney.cocktail.parser;
 
 import java.nio.ByteBuffer;
 
-import net.cheney.cocktail.message.Request;
 import net.cheney.cocktail.message.Request.Builder;
 import net.cheney.cocktail.parser.RequestParser.State;
 
-public class HeaderState implements State {
+public class TrailerState extends BaseState {
 
 	private final Builder builder;
 
-	public HeaderState(net.cheney.cocktail.message.Request.Builder builder) {
+	public TrailerState(Builder builder) {
 		this.builder = builder;
 	}
 
@@ -23,20 +22,14 @@ public class HeaderState implements State {
 			case '\r':
 				// get in lieu of peek
 				buffer.get();
-				return new HeaderEndState(builder).parse(buffer);
+				return new BodyEndState(builder).parse(buffer);
 				
 			default:
-				new HeaderNameState(builder).parse(buffer);
+				new TrailerNameState(builder).parse(buffer);
 			}
 		}
 		buffer.position(offset);
 		return this;
-	}
-
-	@Override
-	public Request result() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

@@ -2,17 +2,18 @@ package net.cheney.cocktail.parser;
 
 import java.nio.ByteBuffer;
 
-import net.cheney.cocktail.message.Header;
-import net.cheney.cocktail.message.Request;
 import net.cheney.cocktail.message.Request.Builder;
+import net.cheney.cocktail.message.Request.Builder.HeaderAccessor;
 import net.cheney.cocktail.parser.RequestParser.State;
 
-public class HeaderNameState extends BaseState {
-	
-	private final Builder builder;
+public class TrailerValueState extends BaseState {
 
-	public HeaderNameState(Request.Builder builder) {
+	private final Builder builder;
+	private final HeaderAccessor header;
+
+	public TrailerValueState(Builder builder, HeaderAccessor header) {
 		this.builder = builder;
+		this.header = header;
 	}
 
 	@Override
@@ -85,19 +86,16 @@ public class HeaderNameState extends BaseState {
 			case '7':
 			case '8':
 			case '9':
+			case ' ':
+			case '.':
+			case '=':
 				continue;
 				
 				
-			case ':':
-				int length = buffer.position() - offset;
-				String s = new String(buffer.array(), buffer.arrayOffset() + offset, --length, US_ASCII);
-				Header header = parseHeader(s);
-				offset = buffer.position();
-				return new HeaderValueState(builder, builder.header(header)).parse(buffer);
-				
 			case '\r':
+				header.add(stringValue(buffer, offset).trim());
 				offset = buffer.position();
-				return new HeaderEndState(builder).parse(buffer);
+				return new TrailerValueEnd(builder).parse(buffer);
 				
 			default:
 				panic(buffer);
@@ -105,27 +103,6 @@ public class HeaderNameState extends BaseState {
 		}
 		buffer.position(offset);
 		return this;
-	}
-	
-	private Header parseHeader(final String s) {
-		return new Header() {
-
-			@Override
-			public net.cheney.cocktail.message.Header.Type type() {
-				return Type.REQUEST;
-			}
-
-			@Override
-			public String name() {
-				return s;
-			}
-			
-			@Override
-			public String toString() {
-				return name();
-			}
-
-		};	
 	}
 
 }
