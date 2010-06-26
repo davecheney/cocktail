@@ -41,16 +41,13 @@ public class MethodState extends BaseState {
 			case 'Z':
 				continue;
 				
-				
 			case ' ':
-				int length = buffer.position() - offset;
-				String s = new String(buffer.array(), buffer.arrayOffset() + offset, --length, US_ASCII);
-				Method method = Method.parse(s);
+				Method method = Method.parse(stringValue(buffer, offset));
 				offset = buffer.position();
 				return new URIState(RequestLine.builder().method(method)).parse(buffer);
 				
 			default:
-				throw new IllegalArgumentException();
+				panic(buffer);
 			}
 		}
 		buffer.position(offset);

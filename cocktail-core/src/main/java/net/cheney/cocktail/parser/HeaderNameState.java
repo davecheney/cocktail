@@ -89,11 +89,8 @@ public class HeaderNameState extends BaseState {
 			case '-':
 				continue;
 				
-				
 			case ':':
-				int length = buffer.position() - offset;
-				String s = new String(buffer.array(), buffer.arrayOffset() + offset, --length, US_ASCII);
-				Header header = parseHeader(s);
+				Header header = parseHeader(stringValue(buffer, offset));
 				offset = buffer.position();
 				return new HeaderValueState(builder, builder.header(header)).parse(buffer);
 				

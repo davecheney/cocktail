@@ -2,8 +2,6 @@ package net.cheney.cocktail.parser;
 
 import java.nio.ByteBuffer;
 
-import net.cheney.cocktail.message.Header;
-
 public class ChunkExtensionState extends ChunkState {
 
 	private final ChunkBuilder builder;

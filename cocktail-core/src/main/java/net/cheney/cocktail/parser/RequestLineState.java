@@ -24,7 +24,7 @@ public class RequestLineState extends BaseState {
 				return new HeaderNameState(Request.builder(builder.build())).parse(buffer);
 				
 			default:
-				throw new IllegalArgumentException();
+				panic(buffer);
 			}
 		}
 		buffer.position(offset);

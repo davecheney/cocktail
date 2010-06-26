@@ -86,11 +86,8 @@ public class TrailerNameState extends BaseState {
 			case '9':
 				continue;
 				
-				
 			case ':':
-				int length = buffer.position() - offset;
-				String s = new String(buffer.array(), buffer.arrayOffset() + offset, --length, US_ASCII);
-				Header header = parseHeader(s);
+				Header header = parseHeader(stringValue(buffer, offset));
 				offset = buffer.position();
 				return new TrailerValueState(builder, builder.header(header)).parse(buffer);
 				

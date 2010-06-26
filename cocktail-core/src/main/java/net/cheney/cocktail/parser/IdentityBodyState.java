@@ -40,7 +40,7 @@ public class IdentityBodyState extends BaseState {
 		if(buffer.remaining() > body.remaining()) {
 			panic(buffer);
 		} else {
-			buffer.put(body);
+			body.put(buffer);
 		}
 	}
 
