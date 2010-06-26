@@ -53,4 +53,21 @@ public class RequestParserTest extends BaseParserTest {
 		assertTrue(Iterables.elementsEqual(request.header(Header.HOST), Arrays.asList("www.example.com")));
 		assertTrue(Iterables.elementsEqual(request.header(Header.COOKIE), Arrays.asList("foo=1", "bar=2")));
 	}
+	
+	@Test public void testOptionsRequest() {
+		ByteBuffer b = request("OPTIONS / HTTP/1.1\r\n" +
+				"Host: deadwood.cheney.net:8081\r\n" +
+				"User-Agent: WebDAVLib/1.1\r\n" +
+				"Accept: */*\r\n" +
+				"Content-Length: 0\r\n" +
+				"Connection: close\r\n\r\n");
+		RequestParser parser = new RequestParser();
+		Request request = parser.parse(b);
+		assertNotNull(ReflectionToStringBuilder.toString(parser), request);
+		assertEquals(request.method(), Method.OPTIONS);
+		assertEquals(request.uri(), URI.create("/"));
+		assertEquals(request.version(), Version.HTTP_1_1);
+		assertElementsEqual(request.header(Header.HOST), Arrays.asList("deadwood.cheney.net:8081"));
+		assertTrue(request.closeRequested());
+	}
 }
