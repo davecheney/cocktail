@@ -129,15 +129,17 @@ public class HttpServer {
 					if(sc != null) {
 						sc.configureBlocking(false);
 						sc.socket().setSendBufferSize(65536);
-//						sc.socket().setTcpNoDelay(true);
+						sc.socket().setTcpNoDelay(true);
 						new HttpConnection(sc, selector, application);
 					}
 					break;
 				
-				case SelectionKey.OP_READ:
+				
 				case SelectionKey.OP_WRITE:
 				case SelectionKey.OP_READ|SelectionKey.OP_WRITE:
-					key.interestOps(key.interestOps() & (~key.readyOps()));
+					key.interestOps(key.interestOps() & (~SelectionKey.OP_WRITE));
+				case SelectionKey.OP_READ:
+					
 					((Registration.Handler)key.attachment()).onReadyOps(key.readyOps());
 					break;
 				
