@@ -96,6 +96,7 @@ public class HttpServer {
 		
 		@Override
 		public Void call() throws IOException {
+			try {
 			for(;;) {
 				Set<SelectionKey> keys = selectNow();
 				for(SelectionKey key : keys) {
@@ -109,6 +110,9 @@ public class HttpServer {
 				}
 				keys.clear();
 			}	
+			} finally {
+				LOG.fatal("Worker exited");
+			}
 		}
 
 		private void handleKey(SelectionKey key) throws IOException {
