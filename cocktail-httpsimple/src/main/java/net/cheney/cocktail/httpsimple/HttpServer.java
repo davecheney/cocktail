@@ -3,6 +3,7 @@ package net.cheney.cocktail.httpsimple;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.SocketAddress;
+import java.nio.channels.Channel;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -42,7 +43,11 @@ public class HttpServer {
 
 	public void start(int nWorkers) throws InterruptedException, IOException {
 		ExecutorService executorService = Executors.newFixedThreadPool(nWorkers);
-		LOG.info("Started: "+executorService.invokeAll(createWorkerTasks(nWorkers)));
+		LOG.info("All workers exited: "+executorService.invokeAll(createWorkerTasks(nWorkers)));
+		LOG.fatal("Closing channels: "+channels.toString());
+		for(Channel channel : channels) {
+			channel.close();
+		}
 	}
 
 	private Collection<? extends Callable<Void>> createWorkerTasks(int nWorkers) throws IOException {
