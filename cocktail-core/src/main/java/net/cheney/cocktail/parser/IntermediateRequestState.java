@@ -34,7 +34,7 @@ public class IntermediateRequestState extends BaseState {
 	}
 
 	private boolean hasContentLength() {
-		return builder.header(Header.CONTENT_LENGTH).any();
+		return Integer.parseInt(builder.header(Header.CONTENT_LENGTH).getOnlyElementWithDefault("0")) > 0;
 	}
 
 	private TransferEncoding transferEncoding() {

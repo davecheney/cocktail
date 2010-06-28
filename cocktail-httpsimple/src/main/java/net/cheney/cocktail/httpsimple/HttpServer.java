@@ -117,17 +117,17 @@ public class HttpServer {
 				case SelectionKey.OP_ACCEPT:
 					SocketChannel sc = ((ServerSocketChannel)key.channel()).accept();
 					if(sc != null) {
-						sc.configureBlocking(false);
 						sc.socket().setSendBufferSize(65536);
 						sc.socket().setTcpNoDelay(true);
+						sc.configureBlocking(false);
 						new HttpConnection(sc, selector, application);
 					}
 					break;
 				
 				case SelectionKey.OP_WRITE:
 				case SelectionKey.OP_READ|SelectionKey.OP_WRITE:
-					key.interestOps(key.interestOps() & (~SelectionKey.OP_WRITE));
 				case SelectionKey.OP_READ:
+					key.interestOps(key.interestOps() & (~key.readyOps()));
 					((Registration.Handler)key.attachment()).onReadyOps(key.readyOps());
 					break;
 				

@@ -6,10 +6,13 @@ import javax.annotation.Nonnull;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.log4j.Logger;
 
 import net.cheney.cocktail.message.Request;
 
 public class RequestParser {
+	
+	private static final Logger LOG = Logger.getLogger(RequestParser.class);
 	
 	public interface State {
 
@@ -22,6 +25,7 @@ public class RequestParser {
 	
 	public Request parse(ByteBuffer buffer) {
 		this.state = state.parse(buffer);
+		LOG.debug(String.format("Returning from parse(), state %s", state));
 		return this.state.result();
 	}
 	
