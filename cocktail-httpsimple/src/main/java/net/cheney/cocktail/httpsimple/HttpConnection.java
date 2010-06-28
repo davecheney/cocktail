@@ -100,7 +100,12 @@ public class HttpConnection implements Channel.Registration.Handler {
 	}
 
 	private void doRead() throws IOException {
-		readState = doRead(readState);
+		if(channel.isReadable()) {
+			readState = doRead(readState);
+		} else {
+			readState = ReadState.PANIC;
+			reader.shutdown();
+		}
 	}
 
 	private ReadState doRead(ReadState state) throws IOException {
@@ -129,26 +134,26 @@ public class HttpConnection implements Channel.Registration.Handler {
 	
 	private ReadState readBody() throws IOException {
 		LOG.debug("readBody()");
-		for( ;; ) {
-			ByteBuffer buffer = reader.read();
-			LOG.debug(String.format("reader.read() returned: %s", buffer));
-			int read = buffer.remaining();
-			// if there is no body indicated with the message, parse(0) will return the ResultState
-			// this means parse() must be called at least twice even for a request with no body
-			Request request = requestParser.parse(buffer);
-			if(request != null) {
-				return handleRequest(request);
-			} else if (read == 0) {
-				return waitForMoreData(ReadState.READ_BODY);
-			}
-			// else read more
-		}
-//		Request request = requestParser.parse(reader.read());
-//		if (request == null) {
-//			return waitForMoreData(ReadState.READ_BODY);
-//		} else {
-//			return handleRequest(request);
+//		for( ;; ) {
+//			ByteBuffer buffer = reader.read();
+//			LOG.debug(String.format("reader.read() returned: %s", buffer));
+//			int read = buffer.remaining();
+//			// if there is no body indicated with the message, parse(0) will return the ResultState
+//			// this means parse() must be called at least twice even for a request with no body
+//			Request request = requestParser.parse(buffer);
+//			if(request != null) {
+//				return handleRequest(request);
+//			} else if (read == 0) {
+//				return waitForMoreData(ReadState.READ_BODY);
+//			}
+//			// else read more
 //		}
+		Request request = requestParser.parse(reader.read());
+		if (request == null) {
+			return waitForMoreData(ReadState.READ_BODY);
+		} else {
+			return handleRequest(request);
+		}
 	}
 
 	private ReadState waitForMoreData(ReadState state) {

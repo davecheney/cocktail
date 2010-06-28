@@ -34,11 +34,15 @@ public class Channel {
 		Reader reader() throws IOException;
 
 		Writer writer();
+
+		boolean isReadable();
 	}
 	
 	public abstract static class Reader {
 
 		public abstract ByteBuffer read() throws IOException;
+
+		public abstract void shutdown() throws IOException;
 
 	}
 	

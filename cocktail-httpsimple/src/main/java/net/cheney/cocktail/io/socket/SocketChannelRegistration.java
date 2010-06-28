@@ -61,5 +61,10 @@ public class SocketChannelRegistration implements Registration {
 	public String toString() {
 		return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
 	}
+	
+	@Override
+	public boolean isReadable() {
+		return key.isReadable();
+	}
 
 }

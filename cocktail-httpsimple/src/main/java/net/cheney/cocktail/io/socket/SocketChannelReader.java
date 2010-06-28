@@ -5,7 +5,6 @@ import static java.lang.String.format;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SocketChannel;
 
 import net.cheney.cocktail.io.Channel;
@@ -18,7 +17,7 @@ public class SocketChannelReader extends Channel.Reader {
 	
 	private static final Logger LOG = Logger.getLogger(SocketChannelReader.class);
 
-	private final ReadableByteChannel channel;
+	private final SocketChannel channel;
 	private final ByteBuffer buffer = (ByteBuffer) ByteBuffer.allocate(8192).flip();
 
 	public SocketChannelReader(SocketChannel channel) throws IOException {
@@ -44,6 +43,11 @@ public class SocketChannelReader extends Channel.Reader {
 	@Override
 	public String toString() {
 		return ReflectionToStringBuilder.toString(this, ToStringStyle.SIMPLE_STYLE);
+	}
+	
+	@Override
+	public void shutdown() throws IOException {
+		channel.socket().shutdownInput();
 	}
 
 }
