@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 
@@ -43,7 +44,13 @@ public class HttpServer {
 
 	public void start(int nWorkers) throws InterruptedException, IOException {
 		ExecutorService executorService = Executors.newFixedThreadPool(nWorkers);
-		LOG.info("All workers exited: "+executorService.invokeAll(createWorkerTasks(nWorkers)));
+		for(Future<Void> task : executorService.invokeAll(createWorkerTasks(nWorkers))) {
+			try {
+				task.get();
+			} catch (Throwable t) {
+				LOG.fatal(String.format("Task %s exited with exception", task), t);
+			}
+		}
 		LOG.fatal("Closing channels: "+channels.toString());
 		for(Channel channel : channels) {
 			channel.close();
