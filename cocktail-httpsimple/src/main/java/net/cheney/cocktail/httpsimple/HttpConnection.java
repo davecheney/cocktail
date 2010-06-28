@@ -85,6 +85,7 @@ public class HttpConnection implements Channel.Registration.Handler {
 				throw new IllegalStateException();
 			}
 		} catch (IOException e) {
+			LOG.error(toString(), e);
 			close();
 		}
 	}
@@ -118,7 +119,7 @@ public class HttpConnection implements Channel.Registration.Handler {
 	private ReadState readHeader() throws IOException {
 		Request request = requestParser.parse(reader.read());
 		if (request == null) {
-			return enableReadInterest(ReadState.READ_HEADER);
+			return waitForMoreData(ReadState.READ_HEADER);
 		} else {
 			handleExpect(request);
 			return readBody();
@@ -126,16 +127,20 @@ public class HttpConnection implements Channel.Registration.Handler {
 	}
 	
 	private ReadState readBody() throws IOException {
-		Request request = requestParser.parse(reader.read());
-		if (request == null) {
-//			LOG.info(String.format("{%s} Waiting for more body data: %s", reader, requestParser));
-			return enableReadInterest(ReadState.READ_BODY);
-		} else {
-			return handleRequest(request);
+		for( ;; ) {
+			ByteBuffer buffer = reader.read();
+			if(buffer.hasRemaining()) {
+				Request request = requestParser.parse(buffer);
+				if(request != null) {
+					return handleRequest(request);
+				}
+			} else {
+				return waitForMoreData(ReadState.READ_BODY);
+			}
 		}
 	}
 
-	private ReadState enableReadInterest(ReadState state) {
+	private ReadState waitForMoreData(ReadState state) {
 		channel.enableReadInterest();
 		return state;
 	}
@@ -144,7 +149,7 @@ public class HttpConnection implements Channel.Registration.Handler {
 		Response response = application.call(createEnvironment(request));
 		sendResponse(response, closeRequested(request, response));
 		reset();
-		return enableReadInterest(ReadState.READ_HEADER);
+		return waitForMoreData(ReadState.READ_HEADER);
 	}
 
 	private Environment createEnvironment(final Request request) {

@@ -95,17 +95,7 @@ public class HttpServer {
 		}
 		
 		@Override
-		public Void call() throws Exception {
-			try {
-				call0();
-				return null;
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw e;
-			}
-		}
-
-		private void call0() throws Exception {
+		public Void call() throws IOException {
 			for(;;) {
 				Set<SelectionKey> keys = selectNow();
 				for(SelectionKey key : keys) {
@@ -114,11 +104,11 @@ public class HttpServer {
 					} catch (IllegalArgumentException e) {
 						key.channel().close();
 						key.cancel();
-						LOG.error("Unhandled exception", e);
+						WORKER_LOGGER.error("Unhandled exception", e);
 					}
 				}
 				keys.clear();
-			}			
+			}	
 		}
 
 		private void handleKey(SelectionKey key) throws IOException {
@@ -134,12 +124,10 @@ public class HttpServer {
 					}
 					break;
 				
-				
 				case SelectionKey.OP_WRITE:
 				case SelectionKey.OP_READ|SelectionKey.OP_WRITE:
 					key.interestOps(key.interestOps() & (~SelectionKey.OP_WRITE));
 				case SelectionKey.OP_READ:
-					
 					((Registration.Handler)key.attachment()).onReadyOps(key.readyOps());
 					break;
 				
@@ -147,7 +135,7 @@ public class HttpServer {
 					throw new IllegalStateException();
 				}
 			} else {
-				LOG.warn(key);
+				WORKER_LOGGER.warn(key);
 			}			
 		}
 

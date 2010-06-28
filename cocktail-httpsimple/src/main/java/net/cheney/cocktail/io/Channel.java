@@ -2,14 +2,12 @@ package net.cheney.cocktail.io;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.channels.GatheringByteChannel;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
 import net.cheney.cocktail.io.socket.SocketChannelWriter;
 import net.cheney.cocktail.io.socket.BufferVChannelWriter;
-import net.cheney.cocktail.io.socket.GatheringByteChannelWriter;
 import net.cheney.cocktail.io.socket.SocketChannelRegistration;
 
 
@@ -95,10 +93,6 @@ public class Channel {
 		
 		private Channel.Writer tryWriteNext() throws IOException {
 			return hasNext() ? next().write() : this;
-		}
-
-		public Channel.Writer write(FileChannel src, long count) throws IOException {
-			return write(new GatheringByteChannelWriter(channel, src, count));
 		}
 
 		private Channel.Writer last() {
