@@ -49,15 +49,15 @@ abstract class BaseState implements State {
 		return new String(buffer.array(), buffer.arrayOffset() + offset, --length, US_ASCII);
 	}
 	
-	final ByteBuffer createBodyBuffer(int contentLength) {
+	final ByteBuffer createBodyBuffer(long contentLength) {
 		if (contentLength < OVERFLOW_LIMIT) {
-			return ByteBuffer.allocate(contentLength);
+			return ByteBuffer.allocate((int)contentLength);
 		} else {
 			return mmapTemporaryBuffer(contentLength);
 		}
 	}
 
-	private ByteBuffer mmapTemporaryBuffer(int contentLength) {
+	private ByteBuffer mmapTemporaryBuffer(long contentLength) {
 		try {
 			File tmpFile = File.createTempFile("upload", null);
 			RandomAccessFile raf = new RandomAccessFile(tmpFile, "rw");

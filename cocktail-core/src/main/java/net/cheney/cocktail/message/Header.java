@@ -104,11 +104,11 @@ public abstract class Header {
 	
 	@Override
 	public final boolean equals(Object that) {
-		return that instanceof Header ? ((Header)that).name().toLowerCase().equals(this.name().toLowerCase()) : false;
+		return that instanceof Header ? ((Header)that).name().equalsIgnoreCase(this.name()) : false;
 	}
 	
 	@Override
-	public int hashCode() {
+	public final int hashCode() {
 		return name().toLowerCase().hashCode();
 	}
 	
@@ -132,35 +132,35 @@ public abstract class Header {
 		};
 	}
 	
-	public static abstract class Accessor implements Iterable<String> {
+	public abstract static class Accessor implements Iterable<String> {
 
 		protected abstract Collection<String> get();
 
 		public abstract Header header();
 
 		@Override
-		public Iterator<String> iterator() {
+		public final Iterator<String> iterator() {
 			return get().iterator();
 		}
 
-		public String getOnlyElement() {
+		public final String getOnlyElement() {
 			return Iterables.getOnlyElement(this);
 		}
 		
-		public boolean any() {
+		public final boolean any() {
 			return get().size() > 0;
 		}
 
-		public String getOnlyElementWithDefault(String defaultValue) {
-			return Iterables.getOnlyElement(get(), defaultValue);
+		public final String getOnlyElementWithDefault(String defaultValue) {
+			return Iterables.getOnlyElement(this, defaultValue);
 		}
 
 		@Override
-		public String toString() {
+		public final String toString() {
 			return String.format("%s=%s", header().name(), get());
 		}
 
-		public boolean contains(String string) {
+		public final boolean contains(String string) {
 			return Iterables.contains(this, string);
 		}
 		

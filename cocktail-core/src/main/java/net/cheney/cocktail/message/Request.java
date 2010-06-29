@@ -121,6 +121,10 @@ public abstract class Request extends Message {
 			return this;
 		}
 		
+		public long contentLength() {
+			return Integer.parseInt(header(Header.CONTENT_LENGTH).getOnlyElementWithDefault("0"));
+		}
+		
 		@Override
 		public String toString() {
 			return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
