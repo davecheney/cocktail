@@ -13,8 +13,8 @@ import net.cheney.cocktail.io.socket.SocketChannelRegistration;
 
 public class Channel {
 	
-	public static Channel.Registration register(Selector selector, SocketChannel sc, int interstOps, Registration.Handler handler) throws IOException {
-		return new SocketChannelRegistration(selector, sc, interstOps, handler);
+	public static Channel.Registration register(Selector selector, SocketChannel sc, int ops, Registration.Handler handler) throws IOException {
+		return new SocketChannelRegistration(sc.register(selector, ops, handler));
 	}
 
 	public interface Registration {
@@ -34,8 +34,6 @@ public class Channel {
 		Reader reader() throws IOException;
 
 		Writer writer();
-
-		boolean isReadable();
 	}
 	
 	public abstract static class Reader {

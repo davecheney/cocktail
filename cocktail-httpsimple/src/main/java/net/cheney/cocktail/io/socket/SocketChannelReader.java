@@ -42,7 +42,7 @@ public class SocketChannelReader extends Channel.Reader {
 	
 	@Override
 	public String toString() {
-		return ReflectionToStringBuilder.toString(this, ToStringStyle.SIMPLE_STYLE);
+		return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
 	}
 	
 	@Override

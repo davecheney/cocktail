@@ -17,19 +17,16 @@ public class IdentityBodyState extends BaseState {
 		this.builder.body(body);
 	}
 
-	private ByteBuffer createBodyBuffer(int contentLength) {
-		return ByteBuffer.allocate(contentLength);
-	}
-
 	private int contentLength() {
-		return Integer.parseInt(builder.header(Header.CONTENT_LENGTH).getOnlyElementWithDefault("0"));
+		return Integer.parseInt(builder.header(Header.CONTENT_LENGTH)
+				.getOnlyElementWithDefault("0"));
 	}
 
 	@Override
 	public State parse(ByteBuffer buffer) {
-		if(body.hasRemaining()) {
+		if (body.hasRemaining()) {
 			appendToBody(buffer);
-			if(body.hasRemaining()) {
+			if (body.hasRemaining()) {
 				return this;
 			}
 		}
@@ -38,7 +35,7 @@ public class IdentityBodyState extends BaseState {
 	}
 
 	private void appendToBody(ByteBuffer buffer) {
-		if(buffer.remaining() > body.remaining()) {
+		if (buffer.remaining() > body.remaining()) {
 			panic(buffer);
 		} else {
 			body.put(buffer);

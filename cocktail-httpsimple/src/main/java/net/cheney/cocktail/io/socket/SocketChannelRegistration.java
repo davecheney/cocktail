@@ -1,23 +1,21 @@
 package net.cheney.cocktail.io.socket;
 
 import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 
 import net.cheney.cocktail.io.Channel;
 import net.cheney.cocktail.io.Channel.Registration;
+
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 public class SocketChannelRegistration implements Registration {
 
 	private final SelectionKey key;
 
-	public SocketChannelRegistration(Selector selector, SocketChannel sc, int interstOps, Handler handler) throws ClosedChannelException {
-		key = sc.register(selector, SelectionKey.OP_READ, handler);
+	public SocketChannelRegistration(SelectionKey key) {
+		this.key = key;
 	}
 
 	@Override
@@ -62,9 +60,4 @@ public class SocketChannelRegistration implements Registration {
 		return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
 	}
 	
-	@Override
-	public boolean isReadable() {
-		return key.isReadable();
-	}
-
 }
