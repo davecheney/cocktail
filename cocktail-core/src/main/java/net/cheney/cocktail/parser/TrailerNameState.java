@@ -88,11 +88,9 @@ public class TrailerNameState extends BaseState {
 				
 			case ':':
 				Header header = parseHeader(stringValue(buffer, offset));
-				offset = buffer.position();
 				return new TrailerValueState(builder, builder.header(header)).parse(buffer);
 				
 			case '\r':
-				offset = buffer.position();
 				return new BodyEndState(builder).parse(buffer);
 				
 			default:

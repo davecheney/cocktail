@@ -19,7 +19,6 @@ public class BodyEndState extends BaseState {
 		while(buffer.hasRemaining()) {
 			switch(buffer.get()) {
 			case '\n':
-				offset = buffer.position();
 				return new ResultState(builder);
 				
 			default:

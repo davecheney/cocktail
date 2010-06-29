@@ -100,12 +100,7 @@ public class HttpConnection implements Channel.Registration.Handler {
 	}
 
 	private void doRead() throws IOException {
-		if(channel.isReadable()) {
-			readState = doRead(readState);
-		} else {
-			readState = ReadState.PANIC;
-			reader.shutdown();
-		}
+		readState = doRead(readState);
 	}
 
 	private ReadState doRead(ReadState state) throws IOException {
@@ -163,7 +158,9 @@ public class HttpConnection implements Channel.Registration.Handler {
 	}
 
 	private ReadState handleRequest(Request request) throws IOException {
+		LOG.info(request);
 		Response response = application.call(createEnvironment(request));
+		LOG.info(response);
 		sendResponse(response, closeRequested(request, response));
 		reset();
 		return waitForMoreData(ReadState.READ_HEADER);

@@ -204,7 +204,7 @@ public abstract class Response extends Message  {
 		
 		@Override
 		public String toString() {
-			return ReflectionToStringBuilder.toString(this, ToStringStyle.SIMPLE_STYLE);
+			return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
 		}
 		
 		public class HeaderAccessor extends Header.Accessor {

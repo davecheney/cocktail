@@ -19,7 +19,6 @@ public class TrailerValueEnd extends BaseState {
 		while(buffer.hasRemaining()) {
 			switch(buffer.get()) {
 			case '\n':
-				offset = buffer.position();
 				return new TrailerNameState(builder);
 				
 			default:

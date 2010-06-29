@@ -16,7 +16,6 @@ public class LastChunkEndState extends ChunkState {
 		while(buffer.hasRemaining()) {
 			switch(buffer.get()) {
 			case '\n':
-				offset = buffer.position();
 				return new ChunkResultState(builder);
 				
 			default:

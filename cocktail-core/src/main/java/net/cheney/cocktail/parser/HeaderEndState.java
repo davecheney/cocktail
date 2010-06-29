@@ -19,7 +19,6 @@ public class HeaderEndState extends BaseState {
 		while(buffer.hasRemaining()) {
 			switch(buffer.get()) {
 			case '\n':
-				offset = buffer.position();
 				return new IntermediateRequestState(builder);
 				
 			default:

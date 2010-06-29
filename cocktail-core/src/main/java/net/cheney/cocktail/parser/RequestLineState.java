@@ -20,7 +20,6 @@ public class RequestLineState extends BaseState {
 		while(buffer.hasRemaining()) {
 			switch(buffer.get()) {
 			case '\n':
-				offset = buffer.position();
 				return new HeaderNameState(Request.builder(builder.build())).parse(buffer);
 				
 			default:

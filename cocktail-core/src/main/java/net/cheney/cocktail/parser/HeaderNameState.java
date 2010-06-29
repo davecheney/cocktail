@@ -102,11 +102,9 @@ public class HeaderNameState extends BaseState {
 				
 			case ':':
 				Header header = parseHeader(stringValue(buffer, offset));
-				offset = buffer.position();
 				return new HeaderValueState(builder, builder.header(header)).parse(buffer);
 				
 			case '\r':
-				offset = buffer.position();
 				return new HeaderEndState(builder).parse(buffer);
 				
 			default:
@@ -117,7 +115,7 @@ public class HeaderNameState extends BaseState {
 		return this;
 	}
 	
-	private Header parseHeader(final String s) {
+	private Header parseHeader(final String name) {
 		return new Header() {
 
 			@Override
@@ -127,7 +125,7 @@ public class HeaderNameState extends BaseState {
 
 			@Override
 			public String name() {
-				return s;
+				return name;
 			}
 			
 			@Override

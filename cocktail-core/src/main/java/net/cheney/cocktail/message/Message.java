@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 public abstract class Message implements Headers {
 	
 	public enum TransferEncoding {
-		NONE,
+		CHUNKED,
 		IDENTITY
 	}
 	
@@ -23,10 +23,6 @@ public abstract class Message implements Headers {
 	}
 	
 	public abstract Version version();
-	
-	public TransferEncoding transferCoding() {
-		return TransferEncoding.NONE;
-	}
 	
 	public abstract ByteBuffer body();
 	

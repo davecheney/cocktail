@@ -111,7 +111,6 @@ public class URIState extends BaseState {
 			
 			case ' ':
 				URI uri = URI.create(stringValue(buffer, offset));
-				offset = buffer.position();
 				return new VersionState(this.builder.uri(uri)).parse(buffer);
 				
 			default:

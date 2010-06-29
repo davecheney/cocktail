@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import net.cheney.cocktail.message.Header;
 import net.cheney.cocktail.message.Request.Builder;
 import net.cheney.cocktail.parser.RequestParser.State;
 
@@ -24,6 +25,7 @@ public class ChunkedBodyState extends BaseState {
 		if(body == null) {
 			return this;
 		} else {
+			builder.header(Header.TRANSFER_ENCODING).delete();
 			return new TrailerNameState(builder.body(body)).parse(buffer);
 		}
 	}

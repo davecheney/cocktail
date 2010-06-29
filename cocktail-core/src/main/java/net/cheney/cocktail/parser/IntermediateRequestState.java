@@ -3,6 +3,7 @@ package net.cheney.cocktail.parser;
 import java.nio.ByteBuffer;
 
 import net.cheney.cocktail.message.Header;
+import net.cheney.cocktail.message.Message.TransferEncoding;
 import net.cheney.cocktail.message.Request;
 import net.cheney.cocktail.message.Request.Builder;
 import net.cheney.cocktail.parser.RequestParser.State;
@@ -11,8 +12,6 @@ public class IntermediateRequestState extends BaseState {
 
 	private final Builder builder;
 	
-	private enum TransferEncoding { IDENTITY, CHUNKED };
-
 	public IntermediateRequestState(Builder builder) {
 		this.builder = builder;
 	}

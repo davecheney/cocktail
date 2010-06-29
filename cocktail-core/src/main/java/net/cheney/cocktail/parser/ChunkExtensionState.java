@@ -87,7 +87,6 @@ public class ChunkExtensionState extends ChunkState {
 				
 			case '\r':
 				// discard extension
-				offset = buffer.position();
 				return new ChunkExtensionEndState(builder).parse(buffer);
 				
 			default:

@@ -150,7 +150,11 @@ public abstract class Request extends Message {
 			}
 
 			public void set(Iterable<String> values) {
-				Iterables.addAll(headers.get(key), values);
+				Iterables.addAll(get(), values);
+			}
+
+			public void delete() {
+				headers.removeAll(key);
 			}
 		}
 

@@ -107,7 +107,6 @@ public class HeaderValueState extends BaseState {
 				
 			case '\r':
 				header.add(stringValue(buffer, offset).trim());
-				offset = buffer.position();
 				return new HeaderValueEnd(builder).parse(buffer);
 				
 			default:

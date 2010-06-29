@@ -38,7 +38,6 @@ public class VersionState extends BaseState {
 				
 			case '\r':
 				Version version = Version.parse(stringValue(buffer, offset));
-				offset = buffer.position();
 				return new RequestLineState(builder.version(version)).parse(buffer);
 				
 			default:

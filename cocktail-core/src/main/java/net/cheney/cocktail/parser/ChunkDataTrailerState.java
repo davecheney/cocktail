@@ -16,7 +16,6 @@ public class ChunkDataTrailerState extends ChunkState {
 		while(buffer.hasRemaining()) {
 			switch(buffer.get()) {
 			case '\r':
-				offset = buffer.position();
 				return new ChunkDataTrailerEnd(builder).parse(buffer);
 				
 			default:

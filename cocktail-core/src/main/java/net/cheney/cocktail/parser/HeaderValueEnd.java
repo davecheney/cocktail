@@ -19,7 +19,6 @@ public class HeaderValueEnd extends BaseState {
 		while(buffer.hasRemaining()) {
 			switch(buffer.get()) {
 			case '\n':
-				offset = buffer.position();
 				return new HeaderNameState(builder).parse(buffer);
 				
 			default:

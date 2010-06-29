@@ -43,7 +43,6 @@ public class MethodState extends BaseState {
 				
 			case ' ':
 				Method method = Method.parse(stringValue(buffer, offset));
-				offset = buffer.position();
 				return new URIState(RequestLine.builder().method(method)).parse(buffer);
 				
 			default:

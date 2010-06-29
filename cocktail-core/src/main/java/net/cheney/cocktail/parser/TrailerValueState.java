@@ -93,7 +93,6 @@ public class TrailerValueState extends BaseState {
 				
 			case '\r':
 				header.add(stringValue(buffer, offset).trim());
-				offset = buffer.position();
 				return new TrailerValueEnd(builder).parse(buffer);
 				
 			default:
