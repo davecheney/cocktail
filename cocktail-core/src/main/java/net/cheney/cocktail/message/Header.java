@@ -15,88 +15,88 @@ public abstract class Header {
 	}
 	
 	public static final Header
-	ACCEPT = $("Accept", Type.REQUEST),
-	ACCEPT_RANGES = $("Accept-Ranges", Type.REQUEST),
-	ACCEPT_CHARSET = $("Accept-Charset", Type.REQUEST),
-	ACCEPT_ENCODING = $("Accept-Encoding", Type.REQUEST),
-	ACCEPT_LANGUAGE = $("Accept-Language", Type.REQUEST),
-	AGE = $("Age", Type.RESPONSE),
-	ALLOW = $("Allow", Type.ENTITY),
-	AUTHORIZATION = $("Authorization", Type.REQUEST),
-	CACHE_CONTROL = $("Cache-Control", Type.GENERAL),
-	COOKIE = $("Cookie", Type.REQUEST),
-	COOKIE2 = $("Cookie2", Type.REQUEST),
+	ACCEPT = builder("Accept", Type.REQUEST),
+	ACCEPT_RANGES = builder("Accept-Ranges", Type.REQUEST),
+	ACCEPT_CHARSET = builder("Accept-Charset", Type.REQUEST),
+	ACCEPT_ENCODING = builder("Accept-Encoding", Type.REQUEST),
+	ACCEPT_LANGUAGE = builder("Accept-Language", Type.REQUEST),
+	AGE = builder("Age", Type.RESPONSE),
+	ALLOW = builder("Allow", Type.ENTITY),
+	AUTHORIZATION = builder("Authorization", Type.REQUEST),
+	CACHE_CONTROL = builder("Cache-Control", Type.GENERAL),
+	COOKIE = builder("Cookie", Type.REQUEST),
+	COOKIE2 = builder("Cookie2", Type.REQUEST),
 	
-	CONNECTION = $("Connection", Type.GENERAL),
+	CONNECTION = builder("Connection", Type.GENERAL),
 	
-	CONTENT_ENCODING = $("Content-Encoding", Type.ENTITY), 
-	CONTENT_LANGUAGE = $("Content-Language", Type.ENTITY),
-	CONTENT_LENGTH = $("Content-Length", Type.ENTITY),
+	CONTENT_ENCODING = builder("Content-Encoding", Type.ENTITY), 
+	CONTENT_LANGUAGE = builder("Content-Language", Type.ENTITY),
+	CONTENT_LENGTH = builder("Content-Length", Type.ENTITY),
 	
-	CONTENT_LOCATION = $("Content-Location", Type.ENTITY),
+	CONTENT_LOCATION = builder("Content-Location", Type.ENTITY),
 	
-	CONTENT_MD5 = $("Content-MD5", Type.ENTITY),
-	CONTENT_RANGE = $("Content-Range", Type.ENTITY),
-	CONTENT_TYPE = $("Content-Type", Type.ENTITY),
+	CONTENT_MD5 = builder("Content-MD5", Type.ENTITY),
+	CONTENT_RANGE = builder("Content-Range", Type.ENTITY),
+	CONTENT_TYPE = builder("Content-Type", Type.ENTITY),
 	
-	DATE = $("Date", Type.GENERAL),
+	DATE = builder("Date", Type.GENERAL),
 	
-	DAV = $("Dav", Type.RESPONSE), 
-	DEPTH = $("Depth", Type.REQUEST), 
-	DESTINATION = $("Destination", Type.REQUEST),
+	DAV = builder("Dav", Type.RESPONSE), 
+	DEPTH = builder("Depth", Type.REQUEST), 
+	DESTINATION = builder("Destination", Type.REQUEST),
 	
-	ETAG = $("ETag", Type.RESPONSE),
+	ETAG = builder("ETag", Type.RESPONSE),
 	
-	EXPECT = $("Expect", Type.REQUEST),
+	EXPECT = builder("Expect", Type.REQUEST),
 	
-	EXPIRES = $("Expires", Type.ENTITY),
+	EXPIRES = builder("Expires", Type.ENTITY),
 	
-	FROM = $("From", Type.REQUEST),
+	FROM = builder("From", Type.REQUEST),
 	
-	HOST = $("Host", Type.REQUEST),
+	HOST = builder("Host", Type.REQUEST),
 	
-	IF = $("If", Type.REQUEST),
-	IF_MATCH = $("If-Match", Type.REQUEST), 
+	IF = builder("If", Type.REQUEST),
+	IF_MATCH = builder("If-Match", Type.REQUEST), 
 	
-	IF_MODIFIED_SINCE = $("If-Modified-Since", Type.REQUEST),
+	IF_MODIFIED_SINCE = builder("If-Modified-Since", Type.REQUEST),
 	
-	IF_NONE_MATCH = $("If-None-Match", Type.REQUEST), 
-	IF_RANGE = $("If-Range", Type.REQUEST),
+	IF_NONE_MATCH = builder("If-None-Match", Type.REQUEST), 
+	IF_RANGE = builder("If-Range", Type.REQUEST),
 	
-	IF_UNMODIFIED_SINCE = $("If-Unmodified-Since", Type.REQUEST),
+	IF_UNMODIFIED_SINCE = builder("If-Unmodified-Since", Type.REQUEST),
 	
-	LAST_MODIFIED = $("Last-Modified", Type.ENTITY),
+	LAST_MODIFIED = builder("Last-Modified", Type.ENTITY),
 	
-	LOCATION = $("Location", Type.RESPONSE),
+	LOCATION = builder("Location", Type.RESPONSE),
 	
-	LOCK_TOKEN = $("Lock-Token", Type.REQUEST),
+	LOCK_TOKEN = builder("Lock-Token", Type.REQUEST),
 	
-	MAX_FORWARDS = $("Max-Forwards", Type.REQUEST),
+	MAX_FORWARDS = builder("Max-Forwards", Type.REQUEST),
 	
-	OVERWRITE = $("Overwrite", Type.REQUEST),
-	PRAGMA = $("Pragma", Type.GENERAL),
+	OVERWRITE = builder("Overwrite", Type.REQUEST),
+	PRAGMA = builder("Pragma", Type.GENERAL),
 	
-	PROXY_AUTHORIZATION = $("Proxy-Authorization", Type.REQUEST),
-	PROXY_AUTHENTICATE = $("Proxy-Authenticate", Type.RESPONSE),
-	RANGE = $("Range", Type.REQUEST),
-	REFERER = $("Referer", Type.REQUEST),
-	RETRY_AFTER = $("Retry-After", Type.RESPONSE),
+	PROXY_AUTHORIZATION = builder("Proxy-Authorization", Type.REQUEST),
+	PROXY_AUTHENTICATE = builder("Proxy-Authenticate", Type.RESPONSE),
+	RANGE = builder("Range", Type.REQUEST),
+	REFERER = builder("Referer", Type.REQUEST),
+	RETRY_AFTER = builder("Retry-After", Type.RESPONSE),
 	
-	SERVER = $("Server", Type.RESPONSE),
+	SERVER = builder("Server", Type.RESPONSE),
 	
-	SET_COOKIE = $("Set-Cookie", Type.RESPONSE),
-	SET_COOKIE2 = $("Set-Cookie2", Type.RESPONSE),
-	TE = $("TE", Type.REQUEST),
-	TIMEOUT = $("Timeout", Type.REQUEST),
-	TRAILER = $("Trailer", Type.GENERAL),	
-	TRANSFER_ENCODING = $("Transfer-Encoding", Type.GENERAL),
-	UPGRADE = $("Upgrade", Type.GENERAL),
-	VARY = $("Vary", Type.RESPONSE),
-	VIA = $("Via", Type.GENERAL),
-	USER_AGENT = $("User-Agent", Type.REQUEST),
-	WARNING = $("Warning", Type.GENERAL),
-	WWW_AUTHENTICATE = $("WWW-Authenticate", Type.RESPONSE),
-	KEEP_ALIVE = $("Keep-Alive", Type.GENERAL); 
+	SET_COOKIE = builder("Set-Cookie", Type.RESPONSE),
+	SET_COOKIE2 = builder("Set-Cookie2", Type.RESPONSE),
+	TE = builder("TE", Type.REQUEST),
+	TIMEOUT = builder("Timeout", Type.REQUEST),
+	TRAILER = builder("Trailer", Type.GENERAL),	
+	TRANSFER_ENCODING = builder("Transfer-Encoding", Type.GENERAL),
+	UPGRADE = builder("Upgrade", Type.GENERAL),
+	VARY = builder("Vary", Type.RESPONSE),
+	VIA = builder("Via", Type.GENERAL),
+	USER_AGENT = builder("User-Agent", Type.REQUEST),
+	WARNING = builder("Warning", Type.GENERAL),
+	WWW_AUTHENTICATE = builder("WWW-Authenticate", Type.RESPONSE),
+	KEEP_ALIVE = builder("Keep-Alive", Type.GENERAL); 
 	
 	public abstract Type type();
 	
@@ -112,24 +112,8 @@ public abstract class Header {
 		return name().toLowerCase().hashCode();
 	}
 	
-	private static Header $(final String name, final Header.Type type) {
-		return new Header() {
-
-			@Override
-			public Header.Type type() {
-				return type;
-			}
-
-			@Override
-			public String name() {
-				return name;
-			}
-			
-			@Override
-			public String toString() {
-				return name();
-			}
-		};
+	private static Header builder(final String name, final Header.Type type) {
+		return new Builder(name, type);
 	}
 	
 	public abstract static class Accessor implements Iterable<String> {
@@ -164,5 +148,31 @@ public abstract class Header {
 			return Iterables.contains(this, string);
 		}
 		
+	}
+	
+	public static final class Builder extends Header {
+
+		private final String name;
+		private final Type type;
+
+		public Builder(String name, Type type) {
+			this.name = name;
+			this.type = type;
+		}
+
+		@Override
+		public Type type() {
+			return type;
+		}
+
+		@Override
+		public String name() {
+			return name;
+		}
+		
+		@Override
+		public String toString() {
+			return name();
+		}
 	}
 }
