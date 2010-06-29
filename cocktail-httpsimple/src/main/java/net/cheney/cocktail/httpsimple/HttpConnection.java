@@ -13,6 +13,8 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import net.cheney.cocktail.application.Application;
 import net.cheney.cocktail.application.Environment;
@@ -29,6 +31,7 @@ import net.cheney.cocktail.parser.RequestParser;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang.time.FastDateFormat;
 import org.apache.log4j.Logger;
 
 import com.google.common.collect.Iterables;
@@ -36,6 +39,10 @@ import com.google.common.collect.Iterables;
 public class HttpConnection implements Channel.Registration.Handler {
 	
 	private static final Logger LOG = Logger.getLogger(HttpConnection.class);
+	
+	private static final String RFC1123_DATE_FORMAT_PATTERN = "EEE, dd MMM yyyy HH:mm:ss zzz";
+	private static final FastDateFormat RFC1123_DATE_FORMAT = FastDateFormat.getInstance(RFC1123_DATE_FORMAT_PATTERN, TimeZone.getTimeZone("GMT"), Locale.US);
+
 	
 	enum ReadState {
 		READ_HEADER, READ_BODY, PANIC;
@@ -286,7 +293,7 @@ public class HttpConnection implements Channel.Registration.Handler {
 			
 			@Override
 			protected Collection<String> get() {
-				return Arrays.asList("Sun, 23 May 2010 10:02:46 GMT");
+				return Arrays.asList(RFC1123_DATE_FORMAT.format(System.currentTimeMillis()));
 			}
 		};
 		Header.Accessor connection = new Header.Accessor() {
@@ -328,9 +335,17 @@ public class HttpConnection implements Channel.Registration.Handler {
 		};
 		if(response.mayContainBody()) {
 			if(requestClose) {
-				return Arrays.asList(date, connection, contentLength);
+				if(response.header(Header.CONTENT_LENGTH).any()) {
+					return Arrays.asList(date, connection);
+				} else{
+					return Arrays.asList(date, connection, contentLength);
+				} 
 			} else {
-				return Arrays.asList(date, contentLength);
+				if(response.header(Header.CONTENT_LENGTH).any()) {
+					return Arrays.asList(date);
+				} else {
+					return Arrays.asList(date, contentLength);
+				}
 			}
 		} else {
 			if(requestClose) {
