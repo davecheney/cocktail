@@ -4,6 +4,7 @@ import static net.cheney.cocktail.message.Response.Status.REDIRECTION_NOT_MODIFI
 import static net.cheney.cocktail.message.Response.Status.SUCCESS_NO_CONTENT;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -231,7 +232,11 @@ public abstract class Response extends Message  {
 			}
 
 			public void set(Iterable<String> values) {
-				Iterables.addAll(headers.get(key), values);
+				headers.replaceValues(key, values);
+			}
+			
+			public void set(String value) {
+				set(Arrays.asList(value));
 			}
 		}
 
