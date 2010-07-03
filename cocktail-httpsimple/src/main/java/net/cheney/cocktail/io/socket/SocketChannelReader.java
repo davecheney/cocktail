@@ -25,9 +25,9 @@ public class SocketChannelReader extends Channel.Reader {
 	}
 	
 	private ByteBuffer readSocket() throws IOException {
-		LOG.debug("readSocket()");
+//		LOG.debug("readSocket()");
 		int read = channel.read(buffer.compact());
-		LOG.debug(format("Read: %d [%s]", read, buffer.toString()));
+//		LOG.debug(format("Read: %d [%s]", read, buffer.toString()));
 		if(read < 0) {
 			throw new ClosedChannelException();
 		}
