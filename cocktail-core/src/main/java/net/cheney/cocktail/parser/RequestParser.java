@@ -25,7 +25,7 @@ public class RequestParser {
 	
 	public Request parse(ByteBuffer buffer) {
 		this.state = state.parse(buffer);
-		LOG.debug(String.format("Returning from parse(), state %s", state));
+//		LOG.debug(String.format("Returning from parse(), state %s", state));
 		return this.state.result();
 	}
 	

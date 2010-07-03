@@ -119,12 +119,12 @@ public class HttpConnection implements Channel.Registration.Handler {
 			return readBody();
 			
 		default:
-			return panic();
+			return panic(state);
 		}
 	}
 
 	private ReadState readHeader() throws IOException {
-		LOG.debug("readHeader()");
+//		LOG.debug("readHeader()");
 		Request request = requestParser.parse(reader.read());
 		if (request == null) {
 			return waitForMoreData(ReadState.READ_HEADER);
@@ -135,21 +135,7 @@ public class HttpConnection implements Channel.Registration.Handler {
 	}
 	
 	private ReadState readBody() throws IOException {
-		LOG.debug("readBody()");
-//		for( ;; ) {
-//			ByteBuffer buffer = reader.read();
-//			LOG.debug(String.format("reader.read() returned: %s", buffer));
-//			int read = buffer.remaining();
-//			// if there is no body indicated with the message, parse(0) will return the ResultState
-//			// this means parse() must be called at least twice even for a request with no body
-//			Request request = requestParser.parse(buffer);
-//			if(request != null) {
-//				return handleRequest(request);
-//			} else if (read == 0) {
-//				return waitForMoreData(ReadState.READ_BODY);
-//			}
-//			// else read more
-//		}
+//		LOG.debug("readBody()");
 		Request request = requestParser.parse(reader.read());
 		if (request == null) {
 			return waitForMoreData(ReadState.READ_BODY);
@@ -226,7 +212,7 @@ public class HttpConnection implements Channel.Registration.Handler {
 
 	// Expect: is stupid
 	private void handleExpect(Request request) throws IOException {
-		LOG.debug("handleExpect()");
+//		LOG.debug("handleExpect()");
 		if(request.header(Header.EXPECT).any()) {
 			sendExpect();
 		}
@@ -360,9 +346,9 @@ public class HttpConnection implements Channel.Registration.Handler {
 		return format("%s %s %s\r\n", response.version(), response.status().code(), response.status().reason());
 	}
 
-	protected <T> T panic() {
+	protected <T> T panic(T t) {
 		close();
-		throw new RuntimeException("PANIC: " + toString());
+		throw new IllegalStateException(t.toString());
 	}
 
 	@Override
