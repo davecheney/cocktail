@@ -4,6 +4,7 @@ import static net.cheney.cocktail.message.Response.Status.REDIRECTION_NOT_MODIFI
 import static net.cheney.cocktail.message.Response.Status.SUCCESS_NO_CONTENT;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -19,7 +20,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 
 public abstract class Response extends Message  {
-
+	
 	public interface StatusCode {
 
 		int code();
