@@ -6,6 +6,7 @@ import org.apache.commons.lang.StringUtils;
 
 import net.cheney.cocktail.application.Application;
 import net.cheney.cocktail.application.Environment;
+import net.cheney.cocktail.message.Header;
 import net.cheney.cocktail.message.Response;
 import net.cheney.cocktail.message.Response.Builder;
 import net.cheney.cocktail.message.Response.Status;
@@ -31,9 +32,10 @@ public class PrettyErrors implements Application {
 
 	private Response exception(RuntimeException e) {
 		Builder builder = Response.builder(Status.SERVER_ERROR_INTERNAL);
+		builder.header(Header.CONTENT_TYPE).set("text/html");
 		StringBuilder sb = new StringBuilder(1024);
 		sb.append(String.format("<html><head><title>%s</title></head><body>",e.toString()));
-		sb.append(String.format("<h1>%s<h1>", e.toString()));
+		sb.append(String.format("<h1>%s</h1>", e.toString()));
 		sb.append(String.format("%s", StringUtils.join(e.getStackTrace(),"<br/>")));
 		sb.append(String.format("</body></html>"));
 		builder.body(CHARSET_UTF8.encode(sb.toString()));
