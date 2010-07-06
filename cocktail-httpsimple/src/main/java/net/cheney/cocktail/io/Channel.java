@@ -2,6 +2,7 @@ package net.cheney.cocktail.io;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.channels.GatheringByteChannel;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
@@ -9,6 +10,7 @@ import java.nio.channels.SocketChannel;
 import net.cheney.cocktail.io.socket.SocketChannelWriter;
 import net.cheney.cocktail.io.socket.BufferVChannelWriter;
 import net.cheney.cocktail.io.socket.SocketChannelRegistration;
+import net.cheney.cocktail.io.socket.SocketFileChannelWriter;
 
 
 public class Channel {
@@ -72,6 +74,10 @@ public class Channel {
 		public Channel.Writer write(ByteBuffer header, ByteBuffer body) throws IOException {
 			return write(new BufferVChannelWriter(channel, header, body));
 		}
+		
+		public Channel.Writer write(FileChannel source) throws IOException {
+			return write(new SocketFileChannelWriter(channel, source));
+		}
 			
 		private Channel.Writer write(Channel.Writer next) throws IOException {
 			Channel.Writer last = last();
@@ -93,7 +99,7 @@ public class Channel {
 			return hasRemaning() ? this : tryWriteNext();
 		}
 		
-		private Channel.Writer tryWriteNext() throws IOException {
+		protected Channel.Writer tryWriteNext() throws IOException {
 			return hasNext() ? next().write() : this;
 		}
 

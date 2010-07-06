@@ -6,6 +6,7 @@ import static org.apache.commons.lang.StringUtils.join;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
@@ -229,10 +230,19 @@ public class HttpConnection implements Channel.Registration.Handler {
 	private void sendResponse(Response response, boolean closeRequested) throws IOException {
 		ByteBuffer header = buildHeaderBuffer(response, closeRequested);
 		if (response.hasBody()) {
-			write(header, response.body());
+			if(response.hasChannel()) {
+				write(header, response.channel());
+			} else {
+				write(header, response.body());
+			}
 		} else {
 			write(header);
 		}
+	}
+
+	private void write(ByteBuffer header, FileChannel source) throws IOException {
+		writer = writer.write(header).write(source);
+		enableWriteInterestIfThereIsMoreToWrite();
 	}
 
 	private void enableWriteInterestIfThereIsMoreToWrite() {

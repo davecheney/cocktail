@@ -234,6 +234,10 @@ public abstract class Response extends Message  {
 			return body == null ? file == null ? 0 : file.length() : body.remaining();
 		}
 
+		public boolean hasChannel() {
+			return file != null;
+		}
+		
 		@Override
 		public FileChannel channel() throws FileNotFoundException {
 			return new FileInputStream(file).getChannel();
@@ -282,5 +286,6 @@ public abstract class Response extends Message  {
 
 	}
 
+	public abstract boolean hasChannel();
 
 }
