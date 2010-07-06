@@ -197,12 +197,17 @@ public abstract class Response extends Message  {
 		}
 		
 		@Override
-		public ByteBuffer body() throws IOException {
+		public ByteBuffer body() {
 			ByteBuffer b = body;
 			if(b == null) {
-				FileChannel c = channel();
-				b = c.map(MapMode.READ_ONLY, 0, file.length());
-				c.close();
+				try {
+					FileChannel c = channel();
+					b = c.map(MapMode.READ_ONLY, 0, file.length());
+					c.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+					return null;
+				}
 			}
 			return b;
 		}
