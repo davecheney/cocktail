@@ -3,8 +3,11 @@ package net.cheney.cocktail.message;
 import static net.cheney.cocktail.message.Response.Status.REDIRECTION_NOT_MODIFIED;
 import static net.cheney.cocktail.message.Response.Status.SUCCESS_NO_CONTENT;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
+import java.nio.channels.FileChannel;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -160,6 +163,7 @@ public abstract class Response extends Message  {
 		private final StatusLine statusLine;
 		private final Multimap<Header, String> headers = ArrayListMultimap.create();
 		private ByteBuffer body = null;
+		private File file = null;
 
 		public Builder(StatusLine statusLine) {
 			this.statusLine = statusLine;
@@ -200,8 +204,25 @@ public abstract class Response extends Message  {
 		}
 		
 		public Builder body(ByteBuffer body) {
+			this.file = null;
 			this.body = body;
 			return this;
+		}
+		
+		public Builder body(File file) {
+			this.body = null;
+			this.file = file;
+			return this;
+		}
+		
+		@Override
+		public long contentLength() {
+			return body == null ? file == null ? 0 : file.length() : body.remaining();
+		}
+
+		@Override
+		public FileChannel channel() throws FileNotFoundException {
+			return new FileInputStream(file).getChannel();
 		}
 		
 		@Override

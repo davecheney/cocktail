@@ -311,12 +311,7 @@ public class HttpConnection implements Channel.Registration.Handler {
 			}
 
 			private String contentLength() {
-				try {
-					return Long.toString(response.contentLength());
-				} catch (IOException e) {
-					// COCK
-					throw new RuntimeException(e);
-				}
+				return Long.toString(response.contentLength());
 			}
 		};
 		if(response.mayContainBody()) {

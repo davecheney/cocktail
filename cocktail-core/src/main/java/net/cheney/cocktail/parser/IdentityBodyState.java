@@ -2,6 +2,7 @@ package net.cheney.cocktail.parser;
 
 import java.nio.ByteBuffer;
 
+import net.cheney.cocktail.message.Header;
 import net.cheney.cocktail.message.Request.Builder;
 import net.cheney.cocktail.parser.RequestParser.State;
 
@@ -12,7 +13,7 @@ public class IdentityBodyState extends BaseState {
 
 	public IdentityBodyState(Builder builder) {
 		this.builder = builder;
-		this.body = createBodyBuffer(builder.contentLength());
+		this.body = createBodyBuffer(builder.header(Header.CONTENT_LENGTH).intValue());
 		this.builder.body(body);
 	}
 

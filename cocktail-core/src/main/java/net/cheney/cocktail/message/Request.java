@@ -1,8 +1,8 @@
 package net.cheney.cocktail.message;
 
-import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -55,13 +55,13 @@ public abstract class Request extends Message {
 
 	public abstract URI uri();
 	
-	public boolean mayHaveBody() {
-		try {
-			return contentLength() > 0;
-		} catch (IOException e) {
-			return false;
-		}
-	}
+//	public boolean mayHaveBody() {
+//		try {
+//			return contentLength() > 0;
+//		} catch (IOException e) {
+//			return false;
+//		}
+//	}
 	
 	public static Request.Builder builder(RequestLine requestLine) {
 		return new Request.Builder(requestLine);
@@ -122,12 +122,17 @@ public abstract class Request extends Message {
 		}
 		
 		public long contentLength() {
-			return Integer.parseInt(header(Header.CONTENT_LENGTH).getOnlyElementWithDefault("0"));
+			return hasBody() ? body().remaining() : 0 ;
 		}
 		
 		@Override
 		public String toString() {
 			return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+		}
+		
+		@Override
+		public boolean hasBody() {
+			return body() != null;
 		}
 		
 		public class HeaderAccessor extends Header.Accessor {
@@ -149,7 +154,7 @@ public abstract class Request extends Message {
 			}
 
 			public HeaderAccessor add(String value) {
-				headers.get(key).add(value);
+				get().add(value);
 				return this;
 			}
 
@@ -160,10 +165,19 @@ public abstract class Request extends Message {
 			public void delete() {
 				headers.removeAll(key);
 			}
+			
+			public int intValue() {
+				return Integer.parseInt(getOnlyElement());
+			}
 		}
 
 		public Request build() {
 			return this;
+		}
+
+		@Override
+		public FileChannel channel() {
+			return null;
 		}
 		
 	}

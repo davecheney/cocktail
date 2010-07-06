@@ -1,7 +1,8 @@
 package net.cheney.cocktail.message;
 
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 
 public abstract class Message implements Headers {
 	
@@ -10,9 +11,7 @@ public abstract class Message implements Headers {
 		IDENTITY
 	}
 	
-	public long contentLength() throws IOException {
-		return hasBody() ? body().remaining() : 0;
-	}
+	public abstract long contentLength();
 	
 	public boolean closeRequested() {
 		// TODO - what about HTTP/1.0
@@ -26,8 +25,8 @@ public abstract class Message implements Headers {
 	
 	public abstract ByteBuffer body();
 	
-	public boolean hasBody() {
-		return body() != null;
-	}
+	public abstract FileChannel channel() throws FileNotFoundException;
+	
+	public abstract boolean hasBody();
 	
 }

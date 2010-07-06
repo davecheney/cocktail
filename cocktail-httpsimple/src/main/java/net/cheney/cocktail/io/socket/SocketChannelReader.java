@@ -1,7 +1,5 @@
 package net.cheney.cocktail.io.socket;
 
-import static java.lang.String.format;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
@@ -11,12 +9,9 @@ import net.cheney.cocktail.io.Channel;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.apache.log4j.Logger;
 
 public class SocketChannelReader extends Channel.Reader {
 	
-	private static final Logger LOG = Logger.getLogger(SocketChannelReader.class);
-
 	private final SocketChannel channel;
 	private final ByteBuffer buffer = (ByteBuffer) ByteBuffer.allocate(8192).flip();
 
@@ -25,9 +20,7 @@ public class SocketChannelReader extends Channel.Reader {
 	}
 	
 	private ByteBuffer readSocket() throws IOException {
-//		LOG.debug("readSocket()");
 		int read = channel.read(buffer.compact());
-//		LOG.debug(format("Read: %d [%s]", read, buffer.toString()));
 		if(read < 0) {
 			throw new ClosedChannelException();
 		}

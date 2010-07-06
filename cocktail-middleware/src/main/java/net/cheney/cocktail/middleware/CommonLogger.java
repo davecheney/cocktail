@@ -2,8 +2,6 @@ package net.cheney.cocktail.middleware;
 
 import static java.lang.String.format;
 
-import java.io.IOException;
-
 import net.cheney.cocktail.application.Application;
 import net.cheney.cocktail.application.Environment;
 import net.cheney.cocktail.message.Response;
@@ -49,11 +47,7 @@ public class CommonLogger implements Application {
 	}
 
 	private long getContentLength(Response response) {
-		try {
-			return response.contentLength();
-		} catch (IOException e) {
-			return -1;
-		}
+		return response.contentLength();
 	}
 
 }
