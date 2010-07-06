@@ -1,5 +1,6 @@
 package net.cheney.cocktail.application;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import javax.annotation.Nonnull;
@@ -55,7 +56,7 @@ public interface Environment extends Headers {
 	
 	@Nonnull Path contextPath();
 	
-	@Nonnull ByteBuffer body();
+	@Nonnull ByteBuffer body() throws IOException;
 	
 	boolean hasBody();
 }

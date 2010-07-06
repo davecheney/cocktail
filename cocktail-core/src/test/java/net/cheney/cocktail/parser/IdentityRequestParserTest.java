@@ -4,6 +4,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 
+import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -21,7 +22,7 @@ import org.junit.Test;
 
 public class IdentityRequestParserTest extends BaseParserTest {
 
-	@Test public void testIdentifyBodyPropfind() {
+	@Test public void testIdentifyBodyPropfind() throws IOException {
 		
 		ByteBuffer buffer = request(
 				"PROPFIND / HTTP/1.1\r\n"+
@@ -49,7 +50,7 @@ public class IdentityRequestParserTest extends BaseParserTest {
 		Assert.assertEquals(expected, actual);
 	}
 	
-	@Test public void testLockRequest() {
+	@Test public void testLockRequest() throws IOException {
 		ByteBuffer b = request("LOCK /.DS_Store HTTP/1.1\r\n" +
 				"Host: deadwood.cheney.net:8081\r\n" +
 				"User-Agent: WebDAVFS/1.8 (01808000) Darwin/10.4.0 (i386)\r\n" +
@@ -76,7 +77,7 @@ public class IdentityRequestParserTest extends BaseParserTest {
 		assertFalse(b.toString(), b.hasRemaining());
 	}
 	
-	@Test public void testPutRequest() {
+	@Test public void testPutRequest() throws IOException {
 		ByteBuffer b = request("PUT /.DS_Store HTTP/1.1\r\n"+
 				"Host: deadwood.cheney.net:8081\r\n"+
 				"User-Agent: WebDAVFS/1.8 (01808000) Darwin/10.4.0 (i386)\r\n"+

@@ -1,6 +1,7 @@
 package net.cheney.cocktail.message;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
@@ -23,7 +24,7 @@ public abstract class Message implements Headers {
 	
 	public abstract Version version();
 	
-	public abstract ByteBuffer body();
+	public abstract ByteBuffer body() throws IOException;
 	
 	public abstract FileChannel channel() throws FileNotFoundException;
 	

@@ -6,8 +6,10 @@ import static net.cheney.cocktail.message.Response.Status.SUCCESS_NO_CONTENT;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -139,10 +141,6 @@ public abstract class Response extends Message  {
 
 	public abstract StatusCode status();
 	
-	public boolean hasBody() {
-		return body() != null;
-	}
-
 	public abstract Version version();
 
 	public boolean mayContainBody() {
@@ -199,8 +197,14 @@ public abstract class Response extends Message  {
 		}
 		
 		@Override
-		public ByteBuffer body() {
-			return this.body;
+		public ByteBuffer body() throws IOException {
+			ByteBuffer b = body;
+			if(b == null) {
+				FileChannel c = channel();
+				b = c.map(MapMode.READ_ONLY, 0, file.length());
+				c.close();
+			}
+			return b;
 		}
 		
 		public Builder body(ByteBuffer body) {
@@ -213,6 +217,11 @@ public abstract class Response extends Message  {
 			this.body = null;
 			this.file = file;
 			return this;
+		}
+		
+		@Override
+		public boolean hasBody() {
+			return body == null ? file == null ? false : true : true ;
 		}
 		
 		@Override

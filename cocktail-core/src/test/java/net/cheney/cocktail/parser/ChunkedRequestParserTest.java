@@ -4,6 +4,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
+import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -25,7 +26,7 @@ import com.google.common.collect.Iterables;
 public class ChunkedRequestParserTest extends BaseParserTest {
 
 	// http://www.jmarshall.com/easy/http/#http1.1c2
-	@Test public void testChunkedRequestParser() {
+	@Test public void testChunkedRequestParser() throws IOException {
 
 		RequestParser parser = new RequestParser();
 		Request request = parser.parse(request("GET /foo HTTP/1.1\r\nHost: www.example.com\r\nTransfer-Encoding: chunked\r\n\r\n"));

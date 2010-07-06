@@ -198,7 +198,7 @@ public class HttpConnection implements Channel.Registration.Handler {
 			}
 
 			@Override
-			public ByteBuffer body() {
+			public ByteBuffer body() throws IOException {
 				return request.body();
 			}
 
