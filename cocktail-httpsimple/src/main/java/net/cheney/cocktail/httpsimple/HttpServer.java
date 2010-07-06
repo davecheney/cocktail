@@ -133,7 +133,7 @@ public class HttpServer {
 				case SelectionKey.OP_ACCEPT:
 					SocketChannel sc = ((ServerSocketChannel)key.channel()).accept();
 					if(sc != null) {
-						sc.socket().setSendBufferSize(65536);
+//						sc.socket().setSendBufferSize(65536);
 						sc.socket().setTcpNoDelay(true);
 						sc.configureBlocking(false);
 						new HttpConnection(sc, selector, application);
