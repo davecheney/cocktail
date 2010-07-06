@@ -230,11 +230,11 @@ public class HttpConnection implements Channel.Registration.Handler {
 	private void sendResponse(Response response, boolean closeRequested) throws IOException {
 		ByteBuffer header = buildHeaderBuffer(response, closeRequested);
 		if (response.hasBody()) {
-			if(response.hasChannel()) {
-				write(header, response.channel());
-			} else {
+//			if(response.hasChannel()) {
+//				write(header, response.channel());
+//			} else {
 				write(header, response.body());
-			}
+//			}
 		} else {
 			write(header);
 		}

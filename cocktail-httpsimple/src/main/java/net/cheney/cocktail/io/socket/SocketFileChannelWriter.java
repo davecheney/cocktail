@@ -41,6 +41,7 @@ public class SocketFileChannelWriter extends Channel.Writer {
 	
 	@Override
 	protected Writer tryWriteNext() throws IOException {
+		LOG.debug(String.format("Closing %s", source));
 		source.close();
 		return super.tryWriteNext();
 	}
